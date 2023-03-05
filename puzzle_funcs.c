@@ -54,3 +54,48 @@ int handle_C_command(FILE *in, Puzzle **p) {
 
   return 0;
 }
+
+int handle_T_command(FILE *in, Puzzle *p) {
+    /* Check if there was an error in creating the puzzle for T command. */
+    if (p == NULL) {
+        fprintf(stderr, "No puzzle\n");
+        return 1;
+    }
+    /* Calculate the number of tiles based on the size of the puzzle */
+    int num_tiles = p->size * p->size; // Number of tiles is equal to size squared (square shape puzzle)
+    int tile_scan = 0; // This is the number of tiles that have been scanned
+    int tile; // This is the current tile being scanned
+    int tile_input = 1; // Result of the fscanf input 
+
+    /* Read in tiles and populate puzzle */
+    while (tile_scan < num_tiles && tile_input == 1) {
+        tile_input = fscanf(in, "  %d", &tile);
+        tile_scan++;
+        printf("%d\n", tile);
+
+    /* Makes sure that the tile values are correct and valid. */
+    if (tile < 0 || tile >= num_tiles) {
+      fprintf(stderr, "Invalid tile value\n");
+      return 1;
+    }
+
+    if (tile_input != 1) {
+        fprintf(stderr, "Invalid input\n");
+        return 1;
+    }
+
+    /* Place the tile in the puzzle. */
+    int row = tile / p->size;
+    int col = tile % p->size;
+    p->grid[row][col] = tile_scan - 1;
+    }
+
+  /* Checks to make sure that all the tiles were iterated through. */
+  if (tile_scan != num_tiles) {
+    fprintf(stderr, "Invalid input\n");
+    return 1;
+  }
+
+  return 0;
+}
+
