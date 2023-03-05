@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
             break;
         case 'Q':
             /* Exit in case of a Q "Quit" command. */
-            handle_Q_command();
+            handle_Q_command(p);
             break;
         default: 
             /* If no accurate command letter is given, catch an invalid command error. 
