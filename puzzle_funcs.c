@@ -6,7 +6,7 @@
 #include "puzzle.h"
 
 
-// TODO: implement functions
+
 Puzzle *puzzle_create(int size) {
   /* Allocate the memory for Puzzle struct and make sure it is valid */
   Puzzle *p = malloc(sizeof(Puzzle)); 
@@ -14,16 +14,38 @@ Puzzle *puzzle_create(int size) {
 
   p->size = size;
   p->grid = malloc(sizeof(int*) * size); // Allocate memory for 2D array of size x size (n x n) square
-  assert(p->grid != NULL); 
+  if (p->grid == NULL) {
+    free(p);
+    return NULL;
+  }
 
   /* Allocate memory for each row and initialize, make sure it is valid. */
   for (int i = 0; i < size; i++) {
     p->grid[i] = malloc(sizeof(int) * size);
     assert(p->grid[i] != NULL); 
-  }
 
+    /* Initialize each cell to -1.  */
+    for (int j = 0; j < size; j++) {
+      p->grid[i][j] = -1;
+    } 
+  }
+ 
   return p;
 }
+
+void puzzle_destroy(Puzzle *p) {
+  /* Get rid of the puzzle if it is invalid and free the memory. */
+    if (p == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < p->size; i++) {
+        free(p->grid[i]);
+    }
+    free(p->grid);
+    free(p);
+}
+
 
 int handle_C_command(FILE *in, Puzzle **p) {
   int size = 0; //size of the puzzle size x size (square)
@@ -49,7 +71,7 @@ int handle_C_command(FILE *in, Puzzle **p) {
     return 1;
   }
 
-  //puzzle_destroy(*p);
+  puzzle_destroy(*p); // Destroys any existing puzzle to allocate memory for new puzzle
   *p = new_puzzle;
 
   return 0;
@@ -70,24 +92,24 @@ int handle_T_command(FILE *in, Puzzle *p) {
     /* Read in tiles and populate puzzle */
     while (tile_scan < num_tiles && tile_input == 1) {
         tile_input = fscanf(in, "  %d", &tile);
-        tile_scan++;
         printf("%d\n", tile);
 
-    /* Makes sure that the tile values are correct and valid. */
-    if (tile < 0 || tile >= num_tiles) {
-      fprintf(stderr, "Invalid tile value\n");
-      return 1;
-    }
+        /* Makes sure that the tile values are correct and valid. */
+        if (tile < 0 || tile >= num_tiles) {
+            fprintf(stderr, "Invalid tile value\n");
+            return 1;
+        }
 
-    if (tile_input != 1) {
-        fprintf(stderr, "Invalid input\n");
-        return 1;
-    }
+        if (tile_input != 1) {
+            fprintf(stderr, "Invalid input\n");
+            return 1;
+        }
 
-    /* Place the tile in the puzzle. */
-    int row = tile / p->size;
-    int col = tile % p->size;
-    p->grid[row][col] = tile_scan - 1;
+        /* Place the tile in the puzzle. */
+        int row = (tile - 1) / p->size;
+        int col = (tile - 1) % p->size;
+        puzzle_set_tile(p, col, row, tile_scan);
+        tile_scan++;
     }
 
   /* Checks to make sure that all the tiles were iterated through. */
@@ -96,6 +118,11 @@ int handle_T_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
+  return 0;
+}
+
+int handle_Q_command(Puzzle *p) {
+  puzzle_destroy(p);
   return 0;
 }
 
