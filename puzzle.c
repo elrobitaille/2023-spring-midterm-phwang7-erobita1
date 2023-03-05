@@ -28,23 +28,16 @@ int main(int argc, char **argv) {
 
     /* Gather the first line command and perform the corresponding function. */
     char input_command; 
+    Puzzle *p = NULL; // declare the puzzle pointer
+
     while (fscanf(game_input, " %c", &input_command) == 1) {
       switch (input_command) {
         case 'C':
-            printf("C\n");
-            int size;  //size of the puzzle size x size (square)
-            int size_scan = fscanf(game_input, "%d", &size);
-
-            /* Catch puzzle size error or missing/invalid command for C. */
-            if (size < 2 || size > 20) {
-              fprintf(stderr, "Invalid puzzle size");
-              return 1;
-            } 
-            if (size_scan != 1) {
-              fprintf(stderr, "Invalid input");
-              return 1;
+            /* Check if there was an error for the C command. */
+            if (handle_C_command(game_input, &p) != 0) {
+              return 1; 
             }
-            //handle_C_command(game_input, &puzzle);
+          
             break;
         case 'T':
             break; 
@@ -63,8 +56,12 @@ int main(int argc, char **argv) {
         case 'Q':
             break;
         default: 
-            /* If no accurate command letter is given, catch an invalid command error. */
-            fprintf(stderr, "Invalid command '%c'", input_command);
+            /* If no accurate command letter is given, catch an invalid command error. 
+            Or, if input command is not a valid uppercase character, skip to the next command. */
+            if (input_command < 'A' || input_command > 'Z') {
+              break;
+            }
+            fprintf(stderr, "Invalid command '%c'\n", input_command);
             return 1; 
       }
     }
