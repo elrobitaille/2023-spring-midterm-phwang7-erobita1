@@ -22,7 +22,10 @@ int handle_C_command(FILE *in, Puzzle **p);
 int handle_T_command(FILE *in, Puzzle *p);
 int handle_I_command(FILE *in, Puzzle *p);
 int handle_W_command(FILE *in, Puzzle *p);
+int handle_V_command(FILE *in, Puzzle *p);
+int handle_K_command(FILE *in, Puzzle *p);
 int handle_S_command(FILE *in, Puzzle *p);
+int handle_Q_command(Puzzle *p);
 
 
 #endif // PUZZLE_H
