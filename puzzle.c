@@ -34,7 +34,16 @@ int main(int argc, char **argv) {
             printf("C\n");
             int size;  //size of the puzzle size x size (square)
             int size_scan = fscanf(game_input, "%d", &size);
-            printf("size scan: %d", size);
+
+            /* Catch puzzle size error or missing/invalid command for C. */
+            if (size < 2 || size > 20) {
+              fprintf(stderr, "Invalid puzzle size");
+              return 1;
+            } 
+            if (size_scan != 1) {
+              fprintf(stderr, "Invalid input");
+              return 1;
+            }
             //handle_C_command(game_input, &puzzle);
             break;
         case 'T':
@@ -53,6 +62,10 @@ int main(int argc, char **argv) {
             break;
         case 'Q':
             break;
+        default: 
+            /* If no accurate command letter is given, catch an invalid command error. */
+            fprintf(stderr, "Invalid command '%c'", input_command);
+            return 1; 
       }
     }
 
