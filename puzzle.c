@@ -33,13 +33,18 @@ int main(int argc, char **argv) {
     while (fscanf(game_input, " %c", &input_command) == 1) {
       switch (input_command) {
         case 'C':
+            printf("C\n");
             /* Check if there was an error for the C command. */
             if (handle_C_command(game_input, &p) != 0) {
               return 1; 
             }
-          
             break;
         case 'T':
+            /* Grab the T command and check the tiles. */
+            printf("T\n");
+            if (handle_T_command(game_input, p) != 0) {
+              return 1;
+            }
             break; 
         case 'I': 
             break;
@@ -54,6 +59,8 @@ int main(int argc, char **argv) {
         case 'V':
             break;
         case 'Q':
+            /* Exit in case of a Q "Quit" command. */
+            handle_Q_command();
             break;
         default: 
             /* If no accurate command letter is given, catch an invalid command error. 
@@ -70,7 +77,4 @@ int main(int argc, char **argv) {
   }
 
  
-
-
-  // TODO: implement
 }
