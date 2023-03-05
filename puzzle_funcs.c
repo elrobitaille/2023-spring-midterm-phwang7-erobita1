@@ -6,7 +6,6 @@
 #include "puzzle.h"
 
 
-
 Puzzle *puzzle_create(int size) {
   /* Allocate the memory for Puzzle struct and make sure it is valid */
   Puzzle *p = malloc(sizeof(Puzzle)); 
@@ -35,17 +34,24 @@ Puzzle *puzzle_create(int size) {
 
 void puzzle_destroy(Puzzle *p) {
   /* Get rid of the puzzle if it is invalid and free the memory. */
-    if (p == NULL) {
-        return;
-    }
-
-    for (int i = 0; i < p->size; i++) {
+    if (p != NULL) {
+      for (int i = 0; i < p->size; i++) {
         free(p->grid[i]);
+      }
+        free(p->grid);
+        free(p);
     }
-    free(p->grid);
-    free(p);
 }
 
+/* Set the tile in the puzzle into grid. */
+void puzzle_set_tile(Puzzle *p, int col, int row, int value) {
+  p->grid[row][col] = value;
+}
+
+/* Grab the value at the specified row or column in grid 2D array. */
+int puzzle_get_tile(const Puzzle *p, int col, int row) {
+  return p->grid[row][col];
+}
 
 int handle_C_command(FILE *in, Puzzle **p) {
   int size = 0; //size of the puzzle size x size (square)
@@ -80,7 +86,7 @@ int handle_C_command(FILE *in, Puzzle **p) {
 int handle_T_command(FILE *in, Puzzle *p) {
     /* Check if there was an error in creating the puzzle for T command. */
     if (p == NULL) {
-        fprintf(stderr, "No puzzle\n");
+        fprintf(stderr, "No puzzle1\n");
         return 1;
     }
     /* Calculate the number of tiles based on the size of the puzzle */
@@ -122,7 +128,9 @@ int handle_T_command(FILE *in, Puzzle *p) {
 }
 
 int handle_Q_command(Puzzle *p) {
-  puzzle_destroy(p);
+  if (p != NULL) {
+    puzzle_destroy(p);
+  }
   return 0;
 }
 
