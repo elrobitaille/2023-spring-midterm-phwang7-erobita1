@@ -44,7 +44,7 @@ void puzzle_destroy(Puzzle *p) {
 }
 
 /* Set the tile in the puzzle into grid. */
-void puzzle_set_tile(Puzzle *p, int col, int row, int value) {
+void puzzle_set_tile(Puzzle *p, int row, int col, int value) {
   if (p == NULL) {
     fprintf(stderr, "Invalid puzzle\n");
     return;
@@ -130,6 +130,15 @@ int handle_T_command(FILE *in, Puzzle *p) {
   }
 
   return 0;
+}
+
+void handle_P_command(Puzzle *p) {
+    for (int i = 0; i < p->size; i++) {
+        for (int j = 0; j < p->size; j++) {
+            printf("%d ", p->grid[i][j]);
+        }
+    }
+    printf("\n");
 }
 
 int handle_Q_command(Puzzle *p) {
