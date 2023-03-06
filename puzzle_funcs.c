@@ -45,11 +45,15 @@ void puzzle_destroy(Puzzle *p) {
 
 /* Set the tile in the puzzle into grid. */
 void puzzle_set_tile(Puzzle *p, int row, int col, int value) {
-  if (p == NULL) {
-    fprintf(stderr, "Invalid puzzle\n");
-    return;
-  }
-  p->grid[row][col] = value;
+    if (p == NULL) {
+        fprintf(stderr, "Invalid puzzle\n");
+        return;
+    }
+    if (row >= p->size || col >= p->size) {
+        fprintf(stderr, "Invalid tile value\n");
+        return;
+    }
+     p->grid[row][col] = value;
 }
 
 /* Grab the value at the specified row or column in grid 2D array. */
@@ -97,39 +101,36 @@ int handle_T_command(FILE *in, Puzzle *p) {
     int tile; // This is the current tile being scanned
     int tile_input = 1; // Result of the fscanf input 
 
-    /* Read in tiles and populate puzzle */
-    while (tile_scan < num_tiles && tile_input == 1) {
-        tile_input = fscanf(in, "  %d", &tile);
-        printf("%d\n", tile);
+    /* Read tiles and populate the puzzle with the corresponding values. */
+    for (int i = 0; i < p->size; i++) {
+        for (int j = 0; j < p->size; j++) {
+            tile_input = fscanf(in, " %d", &tile);
+            printf("%d\n", tile);
 
-        /* Makes sure that the tile values are correct and valid. */
-        if (tile < 0 || tile >= num_tiles) {
-            fprintf(stderr, "Invalid tile value\n");
-            return 1;
-        }
+            /* Makes sure that the tile values are correct and valid. */
+            if (tile < 0 || tile >= num_tiles) {
+                fprintf(stderr, "Invalid tile value\n");
+                return 1;
+            }
 
-        if (tile_input != 1) {
-            fprintf(stderr, "Invalid input\n");
-            return 1;
-        }
+            if (tile_input != 1) {
+                fprintf(stderr, "Invalid input\n");
+                return 1;
+            }
 
-        /* Place the tile in the puzzle. */
-        int row = (tile - 1) / p->size;
-        int col = (tile - 1) % p->size;
-        /* Avoid memory leakage and going out of bounds on the array. */
-        if (row >= 0 && row < p->size && col >= 0 && col < p->size) {
-            puzzle_set_tile(p, row, col, tile_scan);
+            /* Place the tile in the puzzle. */
+            puzzle_set_tile(p, i, j, tile);
+            tile_scan++;
         }
-        tile_scan++;
     }
 
-  /* Checks to make sure that all the tiles were iterated through. */
-  if (tile_scan != num_tiles) {
-    fprintf(stderr, "Invalid input\n");
-    return 1;
-  }
+    /* Checks to make sure that all the tiles were iterated through. */
+    if (tile_scan != num_tiles) {
+        fprintf(stderr, "Invalid input\n");
+        return 1;
+    }
 
-  return 0;
+    return 0;
 }
 
 void handle_P_command(Puzzle *p) {
