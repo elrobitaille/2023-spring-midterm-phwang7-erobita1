@@ -45,6 +45,10 @@ void puzzle_destroy(Puzzle *p) {
 
 /* Set the tile in the puzzle into grid. */
 void puzzle_set_tile(Puzzle *p, int col, int row, int value) {
+  if (p == NULL) {
+    fprintf(stderr, "Invalid puzzle\n");
+    return;
+  }
   p->grid[row][col] = value;
 }
 
@@ -56,8 +60,6 @@ int puzzle_get_tile(const Puzzle *p, int col, int row) {
 int handle_C_command(FILE *in, Puzzle **p) {
   int size = 0; //size of the puzzle size x size (square)
   int size_scan = fscanf(in, " %d\n", &size);
-  printf("size scan: %d\n", size_scan);
-  printf("size: %d\n", size);
 
   /* Catch puzzle size error or missing/invalid command for C. */
   if (size < 2 || size > 20) {
@@ -86,7 +88,7 @@ int handle_C_command(FILE *in, Puzzle **p) {
 int handle_T_command(FILE *in, Puzzle *p) {
     /* Check if there was an error in creating the puzzle for T command. */
     if (p == NULL) {
-        fprintf(stderr, "No puzzle1\n");
+        fprintf(stderr, "No puzzle\n");
         return 1;
     }
     /* Calculate the number of tiles based on the size of the puzzle */
@@ -114,7 +116,10 @@ int handle_T_command(FILE *in, Puzzle *p) {
         /* Place the tile in the puzzle. */
         int row = (tile - 1) / p->size;
         int col = (tile - 1) % p->size;
-        puzzle_set_tile(p, col, row, tile_scan);
+        /* Avoid memory leakage and going out of bounds on the array. */
+        if (row >= 0 && row < p->size && col >= 0 && col < p->size) {
+            puzzle_set_tile(p, row, col, tile_scan);
+        }
         tile_scan++;
     }
 
@@ -133,4 +138,3 @@ int handle_Q_command(Puzzle *p) {
   }
   return 0;
 }
-
