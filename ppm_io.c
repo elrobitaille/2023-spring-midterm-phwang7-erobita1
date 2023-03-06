@@ -59,7 +59,7 @@ Image* ReadPPM(FILE *fp) {
     fprintf(stderr, "Error:ppm_io - failed to allocate memory for image!\n");
     return NULL;
   }
-
+  
   // initialize fields to error codes, in case we have to bail out early
   im->rows = im->cols = -1;
 
@@ -144,5 +144,16 @@ int WritePPM(FILE *fp, const Image *im) {
 
   // return number of pixels written
   return num_pixels_written;
+}
+
+
+/* FreePPM
+ * Free the memory allocated for an Image struct created by ReadPPM.
+ */
+void FreePPM(Image *img) {
+  if (img != NULL) {
+    free(img->data);
+    free(img);
+  }
 }
 
