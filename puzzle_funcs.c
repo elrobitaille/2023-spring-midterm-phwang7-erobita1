@@ -32,8 +32,8 @@ Puzzle *puzzle_create(int size) {
   return p;
 }
 
+/* Get rid of the puzzle if it is invalid and free the memory. */
 void puzzle_destroy(Puzzle *p) {
-  /* Get rid of the puzzle if it is invalid and free the memory. */
     if (p != NULL) {
       for (int i = 0; i < p->size; i++) {
         free(p->grid[i]);
@@ -55,7 +55,6 @@ void puzzle_set_tile(Puzzle *p, int row, int col, int value) {
     }
      p->grid[row][col] = value;
 }
-
 /* Grab the value at the specified row or column in grid 2D array. */
 int puzzle_get_tile(const Puzzle *p, int col, int row) {
   return p->grid[row][col];
