@@ -42,21 +42,43 @@ int main(int argc, char **argv) {
         case 'T':
             /* Grab the T command and check the tiles. */
             printf("T\n");
+            if (p == NULL) {
+              fprintf(stderr, "No puzzle\n");
+            return 1;
+            }
             if (handle_T_command(game_input, p) != 0) {
               return 1;
             }
             break; 
         case 'I': 
+            printf("I\n");
+            if (p == NULL) {
+              fprintf(stderr, "No puzzle\n");
+            return 1;
+            } 
+            //if (handle_I_command(game_input, p) != 0) {
+            //  return 1;
+            //}
             break;
         case 'P':
+            printf("P\n");
+            if (p == NULL) {
+              fprintf(stderr, "No puzzle\n");
+            return 1;
+            }
+            handle_P_command(p);
             break;
         case 'W':
+            printf("W\n");
             break;
         case 'S':
+            printf("S\n");
             break;
         case 'K':
+            printf("K\n");
             break;
         case 'V':
+            printf("V\n");
             break;
         case 'Q':
             /* Exit in case of a Q "Quit" command. */
