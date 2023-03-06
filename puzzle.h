@@ -9,7 +9,9 @@ typedef struct {
   int **grid; // 2D array of integers which are the puzzle tiles
   int row_index; // The row index of the tile
   int col_index; // The column index of the tile 
-
+  int rows;
+  int cols;
+  Image *bg_image; // Background image 
 } Puzzle;
 
 // TODO: function declarations
@@ -26,6 +28,7 @@ int handle_V_command(FILE *in, Puzzle *p);
 int handle_K_command(FILE *in, Puzzle *p);
 int handle_S_command(FILE *in, Puzzle *p);
 int handle_Q_command(Puzzle *p);
+void handle_P_command(Puzzle *p);
 
 
 #endif // PUZZLE_H
