@@ -13,7 +13,7 @@
 
 #include <stdio.h> // c file type: FILE
 
-/* A struct to store a point (2D coordiante).
+/* A struct to store a point (2D coordinate).
  */
 typedef struct _point {
   int x;
@@ -53,5 +53,10 @@ Image* ReadPPM(FILE *fp);
  * and return the number of pixels successfully written.
  */
 int WritePPM(FILE *fp, const Image *img);
+
+/* FreePPM
+ * Free the memory allocated for an Image struct created by ReadPPM.
+ */
+void FreePPM(Image *img);
 
 #endif // MIDTERM_PPM_IO_H_
