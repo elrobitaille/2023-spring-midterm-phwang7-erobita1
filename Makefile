@@ -1,6 +1,6 @@
 # Midterm Project
 # Edgar Robitaille - erobita1
-# <your name> and <your JHED>
+# Patrick Hwang - phwang7
 GCC = gcc
 CONSERVATIVE_FLAGS = -std=c99 -Wall -Wextra -pedantic
 DEBUGGING_FLAGS = -g -O0
