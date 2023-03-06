@@ -56,9 +56,9 @@ int main(int argc, char **argv) {
               fprintf(stderr, "No puzzle\n");
             return 1;
             } 
-            //if (handle_I_command(game_input, p) != 0) {
-            //  return 1;
-            //}
+            if (handle_I_command(game_input, p) != 0) {
+              return 1;
+            }
             break;
         case 'P':
             printf("P\n");
@@ -82,6 +82,7 @@ int main(int argc, char **argv) {
             break;
         case 'Q':
             /* Exit in case of a Q "Quit" command. */
+            printf("Q\n");
             handle_Q_command(p);
             break;
         default: 

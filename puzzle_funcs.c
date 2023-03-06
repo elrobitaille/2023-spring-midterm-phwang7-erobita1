@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include "ppm_io.h"
 #include "puzzle.h"
 
 
@@ -130,6 +131,42 @@ int handle_T_command(FILE *in, Puzzle *p) {
     }
 
     return 0;
+}
+
+/* Loads background image from PPM image file */
+int handle_I_command(FILE *in, Puzzle *p) {
+  char image_name[256];
+  /* Throws error if invalid input */
+  if (fscanf(in, "%s", image_name) != 1) {
+    fprintf(stderr, "Invalid input\n");
+    return 1;
+  }
+
+  FILE *fp = fopen(image_name, "rb");
+  /* Throws error if image file cannot be opened */
+  if (fp == NULL) {
+    fprintf(stderr, "Could not open image file '%s'\n", image_name);
+    return 1;
+  }
+
+  /* Opens PPM file and reads it */
+  Image *new_image = ReadPPM(fp);
+  fclose(fp);
+
+  /* Throws error if image file cannot be opened */
+  if (new_image == NULL) {
+    fprintf(stderr, "Could not open image file '%s'\n", image_name);
+    return 1;
+  }
+
+  /* Destroy any existing background images. */
+  if (p->bg_image != NULL) {
+    FreePPM(p->bg_image);
+  }
+
+  p->bg_image = new_image;
+
+  return 0;
 }
 
 void handle_P_command(Puzzle *p) {
