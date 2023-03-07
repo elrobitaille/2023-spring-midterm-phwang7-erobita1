@@ -169,6 +169,51 @@ int handle_I_command(FILE *in, Puzzle *p) {
   return 0;
 }
 
+/* Move a tile in the specified direction, will be called by handle_S_command function. */
+void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
+    int temp;
+    int new_row = row, new_col = col;
+
+    /* Switch case for each direction: up, down, left, right, for the game to move the tile. */
+    switch (dir) {
+        case 'u':
+            new_row = row - 1;
+            break;
+        case 'd':
+            new_row = row + 1;
+            break;
+        case 'l':
+            new_col = col - 1;
+            break;
+        case 'r':
+            new_col = col + 1;
+            break;
+    }
+
+    /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
+    if (new_row < 0 || new_row >= size || new_col < 0 || new_col >= size) {
+        printf("Puzzle cannot be moved in specified direction\n");
+        return;
+    }
+
+    /* Calculate index1 of the free tile, and index2 of the adjacent tile that is moved. */
+    int index1 = row * size + col;
+    int index2 = new_row * size + new_col;
+
+    /* Check that the tile is valid. */
+    if (tiles[index2] != 0) {
+        printf("Puzzle cannot be moved in specified direction\n");
+        return;
+    }
+
+    /* Update the positions of the free tile and swap; start playing the game. */
+    temp = tiles[index1];
+    tiles[index1] = tiles[index2];
+    tiles[index2] = temp;
+    gap_pos[0] = new_row;
+    gap_pos[1] = new_col;
+}
+
 void handle_P_command(Puzzle *p) {
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
