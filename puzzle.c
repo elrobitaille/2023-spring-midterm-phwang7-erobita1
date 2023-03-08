@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
             printf("I\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
-            return 1;
+              return 1;
             } 
             if (handle_I_command(game_input, p) != 0) {
               return 1;
