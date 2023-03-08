@@ -135,7 +135,7 @@ int handle_T_command(FILE *in, Puzzle *p) {
 
 /* Loads background image from PPM image file */
 int handle_I_command(FILE *in, Puzzle *p) {
-  char image_name[256];
+  char image_name[100];
   /* Throws error if invalid input */
   if (fscanf(in, "%s", image_name) != 1) {
     fprintf(stderr, "Invalid input\n");
@@ -159,12 +159,10 @@ int handle_I_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
-  /* Destroy any existing background images. */
-  if (p->bg_image != NULL) {
-    FreePPM(p->bg_image);
-  }
-
   p->bg_image = new_image;
+
+  /* Free memory allocated by ReadPPM */
+  FreePPM(p->bg_image);
 
   return 0;
 }
@@ -218,6 +216,47 @@ void handle_P_command(Puzzle *p) {
         }
     }
     printf("\n");
+}
+
+/* Write puzzle image to ppm_out and puzzle configuration to txt_out */
+int handle_W_command(FILE *in, Puzzle *p) {
+  char image[100];
+  char config[100];
+  if (fscanf(in, " %s %s", image, config) != 2) {
+    fprintf(stderr, "Invalid input\n");
+    return 1;
+  }
+
+  /* If background image hasn't been read */
+  if (p->bg_image == NULL) {
+    fprintf(stderr, "No image\n");
+    return 1;
+  }
+
+  /* Invalid image dimensions */
+  if (p->bg_image->cols % p->cols != 0 || p->bg_image->rows % p->rows != 0) {
+    fprintf(stderr, "Invalid image dimensions\n");
+    return 1;
+  }
+
+  /* Open output image for writing */
+  FILE *output_image = fopen(image, "wb");
+  if (output_image == NULL) {
+    fprintf(stderr, "Could not open output image file '%s'\n", image);
+    return 1;
+  }
+  WritePPM(output_image, p->bg_image);
+  fclose(output_image);
+
+  FILE *output_config = fopen(config, "w");
+  if (output_config == NULL) {
+    fprintf(stderr, "Could not open output puzzle file '%s'\n", config);
+    return 1;
+  }
+  // Implement writing puzzle in same format
+  fclose(output_config);
+
+  return 0;
 }
 
 int handle_Q_command(Puzzle *p) {
