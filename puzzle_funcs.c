@@ -171,7 +171,7 @@ int handle_I_command(FILE *in, Puzzle *p) {
 
 /* Move a tile in the specified direction, will be called by handle_S_command function. */
 void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
-    int temp;
+    int temp = 0;
     int new_row = row, new_col = col;
 
     /* Switch case for each direction: up, down, left, right, for the game to move the tile. */
@@ -214,6 +214,40 @@ void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
     gap_pos[1] = new_col;
 }
 
+int handle_S_command(Puzzle *p, FILE* in) {
+  //void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos)
+    int gap_pos[2] = {0, 0};
+    char dir; 
+    int row = 0, col = 0, size = 0;
+    int *board = p->board;
+
+    for (int i = 0; i < size * size; i++) {
+        if (board[i] == 0) {
+            gap_pos[0] = i / size;
+            gap_pos[1] = i % size;
+            break;
+        }
+    }
+    
+    if (fscanf(in, " %c", &dir) != 1) {
+        fprintf(stderr, "Invalid input\n");
+        return 1;
+    }
+
+    row = gap_pos[0];
+    col = gap_pos[1];
+
+    if ((dir == 'u' && row == 0) || (dir == 'd' && row == size - 1) ||
+       (dir == 'l' && col == 0) || (dir == 'r' && col == size - 1)) {
+        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+        return 1;
+    }
+
+     move_tile(board, size, row, col, dir, gap_pos);
+
+}
+
+
 void handle_P_command(Puzzle *p) {
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
@@ -229,3 +263,5 @@ int handle_Q_command(Puzzle *p) {
   }
   return 0;
 }
+
+
