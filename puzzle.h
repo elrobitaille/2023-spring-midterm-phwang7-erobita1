@@ -29,7 +29,7 @@ int handle_V_command(FILE *in, Puzzle *p);
 int handle_K_command(FILE *in, Puzzle *p);
 int handle_Q_command(Puzzle *p);
 void handle_P_command(Puzzle *p);
-void move_tile(int *puzzle, int size, int row, int col, int dir, int *gap_pos);
+int move_tile(int *puzzle, int size, int row, int col, int dir, int *gap_pos);
 int handle_S_command(Puzzle *p, FILE* in);
 
 

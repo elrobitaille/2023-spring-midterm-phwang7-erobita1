@@ -9,7 +9,7 @@
 
 Puzzle *puzzle_create(int size) {
   /* Allocate the memory for Puzzle struct and make sure it is valid */
-  Puzzle *p = malloc(sizeof(Puzzle)); 
+  Puzzle *p = calloc(1, sizeof(Puzzle)); 
   assert(p != NULL); 
 
   p->size = size;
@@ -170,7 +170,7 @@ int handle_I_command(FILE *in, Puzzle *p) {
 }
 
 /* Move a tile in the specified direction, will be called by handle_S_command function. */
-void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
+int move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
     int temp = 0;
     int new_row = row, new_col = col;
 
@@ -188,12 +188,15 @@ void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
         case 'r':
             new_col = col + 1;
             break;
+        default:
+            printf("Puzzle cannot be moved in specified direction");
+            return 1;
     }
 
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
     if (new_row < 0 || new_row >= size || new_col < 0 || new_col >= size) {
         printf("Puzzle cannot be moved in specified direction\n");
-        return;
+        return 1;
     }
 
     /* Calculate index1 of the free tile, and index2 of the adjacent tile that is moved. */
@@ -203,7 +206,7 @@ void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
     /* Check that the tile is valid. */
     if (tiles[index2] != 0) {
         printf("Puzzle cannot be moved in specified direction\n");
-        return;
+        return 1;
     }
 
     /* Update the positions of the free tile and swap; start playing the game. */
@@ -212,13 +215,16 @@ void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos) {
     tiles[index2] = temp;
     gap_pos[0] = new_row;
     gap_pos[1] = new_col;
+    
+    return 0;
 }
 
 int handle_S_command(Puzzle *p, FILE* in) {
   //void move_tile(int *tiles, int size, int row, int col, int dir, int *gap_pos)
     int gap_pos[2] = {0, 0};
-    char dir; 
-    int row = 0, col = 0, size = 0;
+    char dir = ' '; 
+    int row = -1, col = -1;
+    int size = p->size;
     int *board = p->board;
 
     for (int i = 0; i < size * size; i++) {
