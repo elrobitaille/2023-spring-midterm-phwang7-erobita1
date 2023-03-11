@@ -169,8 +169,7 @@ int handle_I_command(FILE *in, Puzzle *p) {
 
 /* Move a tile in the specified direction, will be called by handle_S_command function. */
 int move_tile(Puzzle *p, int row, int col, char dir) {
-    int size = p->size;
-    int temp = puzzle_get_tile(p, col, row);
+    int temp = puzzle_get_tile(p, row, col);
     int new_row = row, new_col = col;
 
     /* Switch case for each direction: up, down, left, right, for the game to move the tile. */
@@ -200,7 +199,7 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
     }
 
     // Set the puzzle tiles using the getter and setter functions. 
-    int next_value = puzzle_get_tile(p, new_col, new_row);
+    int next_value = puzzle_get_tile(p, new_row, new_col);
 
     // Next tile is not empty so there is an error, or the zero can't be moved there. 
     if (next_value != -1) {
@@ -220,6 +219,10 @@ int handle_S_command(Puzzle *p, char dir) {
       fprintf(stderr, "Invalid input");
       return 1;  
     }
+    //int row = -1, col = -1;
+
+    //move_tile(p, row, col, dir);
+
     printf("%c\n", dir);
     return 0;
 }
@@ -242,9 +245,16 @@ int handle_W_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
+  printf("image = %s, config = %s\n", image, config);
+
   /* If background image hasn't been read */
   if (p->bg_image == NULL) {
     fprintf(stderr, "No image\n");
+    return 1;
+  }
+
+  if (p->cols == 0 || p->rows == 0) {
+    fprintf(stderr, "Invalid puzzle dimensions\n");
     return 1;
   }
 
@@ -260,7 +270,12 @@ int handle_W_command(FILE *in, Puzzle *p) {
     fprintf(stderr, "Could not open output image file '%s'\n", image);
     return 1;
   }
-  WritePPM(output_image, p->bg_image);
+  
+  if (WritePPM(output_image, p->bg_image) != 0) {
+    fprintf(stderr, "Could not write puzzle data '%s'\n", image);
+    return 1;
+  }
+
   fclose(output_image);
 
   FILE *output_config = fopen(config, "w");
