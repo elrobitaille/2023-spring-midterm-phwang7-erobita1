@@ -269,7 +269,7 @@ int handle_K_command(Puzzle *p) {
 
     for (int i = 0; i < p->size; i++) {
       for (int j = 0; j < p->size; j++) {
-          if (p->grid[i][j] != expected && !(i == p->size-1 && j == p->size-1 && p->grid[i][j] == 0)) {
+          if (p->grid[i][j] != expected || !(i == p->size-1 || j == p->size-1 || p->grid[i][j] == 0)) {
               printf("Not solved\n");
               return 1;
             }
