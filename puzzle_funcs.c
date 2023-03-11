@@ -220,18 +220,9 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
         return 1;
     }
 
-    /* 
     // Set the puzzle tiles using the getter and setter functions. 
     int next_value = puzzle_get_tile(p, new_row, new_col);
 
-    // Next tile is not empty so there is an error, or the zero can't be moved there. 
-    if (next_value != -1) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction4\n");
-        return 1; 
-    }
-    */
-    
-    int next_value = puzzle_get_tile(p, new_row, new_col);
     puzzle_set_tile(p, col, row, next_value);
     puzzle_set_tile(p, new_col, new_row, 0);
 
