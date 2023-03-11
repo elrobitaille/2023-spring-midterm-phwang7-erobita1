@@ -70,12 +70,36 @@ int main(int argc, char **argv) {
             break;
         case 'W':
             printf("W\n");
+            if (p == NULL) {
+              fprintf(stderr, "No puzzle\n");
+              return 1;
+            } 
+            if (handle_W_command(game_input, p) != 0) {
+              return 1;
+            }
             break;
         case 'S':
-            printf("S\n");
+            if (p == NULL) {
+              fprintf(stderr, "No puzzle\n");
+              return 1;
+            }
+            // Grab the direction and make sure it is size 1, only one letter for dir. 
+            char direction;
+            if (fscanf(game_input, " %c", &direction) != 1) {
+              fprintf(stderr, "Invalid input\n");
+              return 1;
+            }
+            if (handle_S_command(p, direction) != 0) {
+              return 1;
+            }
             break;
         case 'K':
             printf("K\n");
+            if (p == NULL) {
+              fprintf(stderr, "No puzzle\n");
+            return 1;
+            }
+            handle_K_command(p);
             break;
         case 'V':
             printf("V\n");
