@@ -188,16 +188,18 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
             new_col = col + 1;
             break;
         default:
+            // Invalid case that does not use any correct letter movement. 
             printf("Puzzle cannot be moved in specified direction\n");
             return 1;
     }
 
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
     if (new_row < 0 || new_row >= size || new_col < 0 || new_col >= size) {
-        printf("Puzzle cannot be moved in specified direction\n");
+        printf("Puzzle cannot be moved in specified direction1\n");
         return 1;
     }
 
+    // Set the puzzle tiles using the getter and setter functions. 
     int value = puzzle_get_tile(p, new_col, new_row);
     puzzle_set_tile(p, new_col, new_row, value);
     puzzle_set_tile(p, col, row, temp);
@@ -205,9 +207,7 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
     return 0;
 }
 
-int handle_S_command(Puzzle *p, FILE* in) {
-  
-}
+
 
 void handle_P_command(Puzzle *p) {
     for (int i = 0; i < p->size; i++) {
@@ -258,6 +258,34 @@ int handle_W_command(FILE *in, Puzzle *p) {
 
   return 0;
 }
+
+int handle_K_command(Puzzle *p) {
+  if (!p) {
+        printf("No puzzle\n");
+        return 1;
+    }
+    int expected = 1;
+    int n = p->size * p->size - 1;  // don't count last element which should be 0
+
+    for (int i = 0; i < p->size; i++) {
+      for (int j = 0; j < p->size; j++) {
+          if (p->grid[i][j] != expected && !(i == p->size-1 && j == p->size-1 && p->grid[i][j] == 0)) {
+              printf("Not solved\n");
+              return 1;
+            }
+            expected++;
+            if (expected > n) {
+              break;
+            }
+        }
+        if (expected > n) {
+          break;
+        }
+    }
+    printf("Solved\n");
+    return 0;
+}
+
 
 int handle_Q_command(Puzzle *p) {
   if (p != NULL) {
