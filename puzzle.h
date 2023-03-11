@@ -26,11 +26,11 @@ int handle_T_command(FILE *in, Puzzle *p);
 int handle_I_command(FILE *in, Puzzle *p);
 int handle_W_command(FILE *in, Puzzle *p);
 int handle_V_command(FILE *in, Puzzle *p);
-int handle_K_command(FILE *in, Puzzle *p);
+int handle_K_command(Puzzle *p);
 int handle_Q_command(Puzzle *p);
 void handle_P_command(Puzzle *p);
-int move_tile(int *puzzle, int size, int row, int col, int dir, int *gap_pos);
-int handle_S_command(Puzzle *p, FILE* in);
+int move_tile(Puzzle *p, int row, int col, char dir);
+int handle_S_command(Puzzle *p, char dir);
 
 
 #endif // PUZZLE_H
