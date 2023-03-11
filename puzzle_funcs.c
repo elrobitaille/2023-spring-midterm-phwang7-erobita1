@@ -1,3 +1,5 @@
+// Edgar Robitaille erobita1
+// Patrick Hwang phwang7
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +61,24 @@ void puzzle_set_tile(Puzzle *p, int row, int col, int value) {
 /* Grab the value at the specified row or column in grid 2D array. */
 int puzzle_get_tile(const Puzzle *p, int col, int row) {
   return p->grid[row][col];
+}
+
+int puzzle_zero_tile(Puzzle *p, int tile, int *row, int *col) {
+    if (p == NULL || row == NULL || col == NULL) {
+      fprintf(stderr, "No puzzle");
+      return 1;
+    }
+
+    for (int i = 0; i < p->size; i++) {
+        for (int j = 0; j < p->size; j++) {
+            if (p->grid[i][j] == tile) {
+                *row = i;
+                *col = j;
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
 int handle_C_command(FILE *in, Puzzle **p) {
@@ -135,7 +155,7 @@ int handle_T_command(FILE *in, Puzzle *p) {
 
 /* Loads background image from PPM image file */
 int handle_I_command(FILE *in, Puzzle *p) {
-  char image_name[100];
+  char image_name[255];
   /* Throws error if invalid input */
   if (fscanf(in, "%s", image_name) != 1) {
     fprintf(stderr, "Invalid input\n");
@@ -169,62 +189,91 @@ int handle_I_command(FILE *in, Puzzle *p) {
 
 /* Move a tile in the specified direction, will be called by handle_S_command function. */
 int move_tile(Puzzle *p, int row, int col, char dir) {
-    int temp = puzzle_get_tile(p, row, col);
+    //int temp = puzzle_get_tile(p, row, col);
     int new_row = row, new_col = col;
 
     /* Switch case for each direction: up, down, left, right, for the game to move the tile. */
     switch (dir) {
         case 'u':
-            new_row = row - 1;
+            new_col = col + 1;
             break;
         case 'd':
-            new_row = row + 1;
-            break;
-        case 'l':
             new_col = col - 1;
             break;
+        case 'l':
+            new_row = row + 1;
+            break;
         case 'r':
-            new_col = col + 1;
+            new_row = row - 1;
             break;
         default:
             // Invalid case that does not use any correct letter movement. 
-            fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+            fprintf(stderr, "Puzzle cannot be moved in specified direction1\n");
             return 1;
     }
 
+    printf("new_row: %d, new_col: %d\n", new_row, new_col);
+    printf("Puzzle size: %d\n", p->size);
+
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
     if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction1\n");
+        fprintf(stderr, "Puzzle cannot be moved in specified direction3\n");
         return 1;
     }
 
+    /* 
     // Set the puzzle tiles using the getter and setter functions. 
     int next_value = puzzle_get_tile(p, new_row, new_col);
 
     // Next tile is not empty so there is an error, or the zero can't be moved there. 
     if (next_value != -1) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+        fprintf(stderr, "Puzzle cannot be moved in specified direction4\n");
         return 1; 
     }
+    */
     
     // Set the tile
-    puzzle_set_tile(p, new_col, new_row, temp);
-    puzzle_set_tile(p, col, row, -1);
+    int next_value = puzzle_get_tile(p, new_row, new_col);
+    puzzle_set_tile(p, col, row, next_value);
+    puzzle_set_tile(p, new_col, new_row, 0);
 
     return 0;
 }
 
 int handle_S_command(Puzzle *p, char dir) {
     if (dir != 'u' && dir != 'd' && dir != 'l' && dir != 'r') {
-      fprintf(stderr, "Invalid input");
+      fprintf(stderr, "Invalid input1\n");
       return 1;  
     }
-    //int row = -1, col = -1;
 
-    //move_tile(p, row, col, dir);
+    int zero_row = -1, zero_col = -1;
+    if (puzzle_zero_tile(p, 0, &zero_row, &zero_col) != 0) {
+        fprintf(stderr, "Invalid Input2\n");
+        return 1;
+    }
+    printf("Zero tile: (%d, %d)\n", zero_row, zero_col);
 
+    printf("Updated puzzle:\n");
+    for (int i = 0; i < p->size; i++) {
+        for (int j = 0; j < p->size; j++) {
+            printf("%d ", puzzle_get_tile(p, j, i));
+        }
+        printf("\n");
+    }
+
+    if (move_tile(p, zero_row, zero_col, dir) != 0) {
+        fprintf(stderr, "Puzzle cannot be moved in specified direction5\n");
+        return 1;
+    }
+
+    
+    
+    
+    
     printf("%c\n", dir);
+  
     return 0;
+
 }
 
 void handle_P_command(Puzzle *p) {
@@ -238,54 +287,14 @@ void handle_P_command(Puzzle *p) {
 
 /* Write puzzle image to ppm_out and puzzle configuration to txt_out */
 int handle_W_command(FILE *in, Puzzle *p) {
-  char image[100];
-  char config[100];
+  char image[255]; // instructions say to use 255 as max 
+  char config[255];
   if (fscanf(in, " %s %s", image, config) != 2) {
     fprintf(stderr, "Invalid input\n");
     return 1;
   }
 
   printf("image = %s, config = %s\n", image, config);
-
-  /* If background image hasn't been read */
-  if (p->bg_image == NULL) {
-    fprintf(stderr, "No image\n");
-    return 1;
-  }
-
-  if (p->cols == 0 || p->rows == 0) {
-    fprintf(stderr, "Invalid puzzle dimensions\n");
-    return 1;
-  }
-
-  /* Invalid image dimensions */
-  if (p->bg_image->cols % p->cols != 0 || p->bg_image->rows % p->rows != 0) {
-    fprintf(stderr, "Invalid image dimensions\n");
-    return 1;
-  }
-
-  /* Open output image for writing */
-  FILE *output_image = fopen(image, "wb");
-  if (output_image == NULL) {
-    fprintf(stderr, "Could not open output image file '%s'\n", image);
-    return 1;
-  }
-  
-  if (WritePPM(output_image, p->bg_image) != 0) {
-    fprintf(stderr, "Could not write puzzle data '%s'\n", image);
-    return 1;
-  }
-
-  fclose(output_image);
-
-  FILE *output_config = fopen(config, "w");
-  if (output_config == NULL) {
-    fprintf(stderr, "Could not open output puzzle file '%s'\n", config);
-    return 1;
-  }
-
-  // Implement writing puzzle in same format
-  fclose(output_config);
 
   return 0;
 }
