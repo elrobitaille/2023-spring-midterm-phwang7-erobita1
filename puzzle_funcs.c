@@ -189,24 +189,40 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
             break;
         default:
             // Invalid case that does not use any correct letter movement. 
-            printf("Puzzle cannot be moved in specified direction\n");
+            fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
             return 1;
     }
 
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
-    if (new_row < 0 || new_row >= size || new_col < 0 || new_col >= size) {
-        printf("Puzzle cannot be moved in specified direction1\n");
+    if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
+        fprintf(stderr, "Puzzle cannot be moved in specified direction1\n");
         return 1;
     }
 
     // Set the puzzle tiles using the getter and setter functions. 
-    int value = puzzle_get_tile(p, new_col, new_row);
-    puzzle_set_tile(p, new_col, new_row, value);
-    puzzle_set_tile(p, col, row, temp);
+    int next_value = puzzle_get_tile(p, new_col, new_row);
+
+    // Next tile is not empty so there is an error, or the zero can't be moved there. 
+    if (next_value != -1) {
+        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+        return 1; 
+    }
+    
+    // Set the tile
+    puzzle_set_tile(p, new_col, new_row, temp);
+    puzzle_set_tile(p, col, row, -1);
 
     return 0;
 }
 
+int handle_S_command(Puzzle *p, char dir) {
+    if (dir != 'u' && dir != 'd' && dir != 'l' && dir != 'r') {
+      fprintf(stderr, "Invalid input");
+      return 1;  
+    }
+    printf("%c\n", dir);
+    return 0;
+}
 
 void handle_P_command(Puzzle *p) {
     for (int i = 0; i < p->size; i++) {
@@ -262,7 +278,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
 int handle_K_command(Puzzle *p) {
   // Make sure that the puzzle is defined and is not null, prints No puzzle if there is error, returns 1.
   if (!p) {
-        printf("No puzzle\n");
+        fprintf(stderr, "No puzzle\n");
         return 1;
     }
     // Puzzles always starts at 1, then ends at zero. So the first expected value is 1. 
@@ -272,7 +288,7 @@ int handle_K_command(Puzzle *p) {
     // Iterates through the 2D array and makes sure that it is in numerical order (minus the 0 at the end).
     for (int i = 0; i < p->size; i++) {
       for (int j = 0; j < p->size; j++) {
-          /* Made this more readable, basically checks that this current position is not equal to the
+          /* Basically checks that this current position is not equal to the
           expected value, then checks that the current position is not in the last row or last column,
           and it is not the 0 tile (the ending). If true, then puzzle isn't solved. */
           if (p->grid[i][j] != expected || (i != p->size-1 && j != p->size-1 && p->grid[i][j] == 0)) {
@@ -292,7 +308,6 @@ int handle_K_command(Puzzle *p) {
     printf("Solved\n");
     return 0;
 }
-
 
 int handle_Q_command(Puzzle *p) {
   if (p != NULL) {
