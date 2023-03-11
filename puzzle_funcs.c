@@ -189,7 +189,6 @@ int handle_I_command(FILE *in, Puzzle *p) {
 
 /* Move a tile in the specified direction, will be called by handle_S_command function. */
 int move_tile(Puzzle *p, int row, int col, char dir) {
-    //int temp = puzzle_get_tile(p, row, col);
     int new_row = row, new_col = col;
 
     /* Switch case for each direction: up, down, left, right, for the game to move the tile. */
@@ -232,7 +231,6 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
     }
     */
     
-    // Set the tile
     int next_value = puzzle_get_tile(p, new_row, new_col);
     puzzle_set_tile(p, col, row, next_value);
     puzzle_set_tile(p, new_col, new_row, 0);
@@ -247,7 +245,7 @@ int handle_S_command(Puzzle *p, char dir) {
     }
 
     int zero_row = -1, zero_col = -1;
-    if (puzzle_zero_tile(p, 0, &zero_row, &zero_col) != 0) {
+    if (puzzle_zero_tile(p, 0, &zero_col, &zero_row) != 0) {
         fprintf(stderr, "Invalid Input2\n");
         return 1;
     }
@@ -266,10 +264,6 @@ int handle_S_command(Puzzle *p, char dir) {
         return 1;
     }
 
-    
-    
-    
-    
     printf("%c\n", dir);
   
     return 0;
