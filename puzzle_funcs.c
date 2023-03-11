@@ -63,12 +63,15 @@ int puzzle_get_tile(const Puzzle *p, int col, int row) {
   return p->grid[row][col];
 }
 
+/* Function that finds where the zero is in the 2D array. */
 int puzzle_zero_tile(Puzzle *p, int tile, int *row, int *col) {
+    // Checks for a null row, col, or puzzle pointer. 
     if (p == NULL || row == NULL || col == NULL) {
       fprintf(stderr, "No puzzle");
       return 1;
     }
 
+    // Searches for the zero in the 2D array and returns result. 
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
             if (p->grid[i][j] == tile) {
@@ -207,22 +210,20 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
             break;
         default:
             // Invalid case that does not use any correct letter movement. 
-            fprintf(stderr, "Puzzle cannot be moved in specified direction1\n");
+            fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
             return 1;
     }
 
-    printf("new_row: %d, new_col: %d\n", new_row, new_col);
-    printf("Puzzle size: %d\n", p->size);
-
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
     if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction3\n");
+        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
         return 1;
     }
 
     // Set the puzzle tiles using the getter and setter functions. 
     int next_value = puzzle_get_tile(p, new_row, new_col);
 
+    /* Set the tiles accordingly using the set_tile function. */
     puzzle_set_tile(p, col, row, next_value);
     puzzle_set_tile(p, new_col, new_row, 0);
 
@@ -230,17 +231,18 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
 }
 
 int handle_S_command(Puzzle *p, char dir) {
+    /* Make sure that the direction is a valid letter. */
     if (dir != 'u' && dir != 'd' && dir != 'l' && dir != 'r') {
-      fprintf(stderr, "Invalid input1\n");
+      fprintf(stderr, "Invalid input\n");
       return 1;  
     }
 
+    /* Initialize the zero location in the 2D array, then use the puzzle_zero_tile function to find the index. */
     int zero_row = -1, zero_col = -1;
     if (puzzle_zero_tile(p, 0, &zero_col, &zero_row) != 0) {
-        fprintf(stderr, "Invalid Input2\n");
+        fprintf(stderr, "Invalid Input\n");
         return 1;
     }
-    printf("Zero tile: (%d, %d)\n", zero_row, zero_col);
 
     printf("Updated puzzle:\n");
     for (int i = 0; i < p->size; i++) {
@@ -250,18 +252,18 @@ int handle_S_command(Puzzle *p, char dir) {
         printf("\n");
     }
 
+    /* Say puzzle cannot be moved in a certain direction if error is reached by move_tile function. */
     if (move_tile(p, zero_row, zero_col, dir) != 0) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction5\n");
+        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
         return 1;
     }
-
-    printf("%c\n", dir);
   
     return 0;
 
 }
 
 void handle_P_command(Puzzle *p) {
+  /* Iterate through the 2D array and print the values in a single line. */
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
             printf("%d ", p->grid[i][j]);
