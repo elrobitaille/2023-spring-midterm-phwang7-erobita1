@@ -260,28 +260,35 @@ int handle_W_command(FILE *in, Puzzle *p) {
 }
 
 int handle_K_command(Puzzle *p) {
+  // Make sure that the puzzle is defined and is not null, prints No puzzle if there is error, returns 1.
   if (!p) {
         printf("No puzzle\n");
         return 1;
     }
+    // Puzzles always starts at 1, then ends at zero. So the first expected value is 1. 
     int expected = 1;
-    int n = p->size * p->size - 1;  // don't count last element which should be 0
+    int n = p->size * p->size - 1;  // Doesn't count the last element which should be 0, so subtract 1.
 
+    // Iterates through the 2D array and makes sure that it is in numerical order (minus the 0 at the end).
     for (int i = 0; i < p->size; i++) {
       for (int j = 0; j < p->size; j++) {
+          /* Made this more readable, basically checks that this current position is not equal to the
+          expected value, then checks that the current position is not in the last row or last column,
+          and it is not the 0 tile (the ending). If true, then puzzle isn't solved. */
           if (p->grid[i][j] != expected || !(i == p->size-1 || j == p->size-1 || p->grid[i][j] == 0)) {
               printf("Not solved\n");
               return 1;
             }
-            expected++;
-            if (expected > n) {
+            expected++; //increment the expected value 
+            if (expected > n) { // checks that expected value hasnt exceeded max value allowed.
               break;
             }
         }
-        if (expected > n) {
+        if (expected > n) { // checking same condition outside first for loop
           break;
         }
     }
+    /* Successfully solved the puzzle, return 0 and solved.  */
     printf("Solved\n");
     return 0;
 }
