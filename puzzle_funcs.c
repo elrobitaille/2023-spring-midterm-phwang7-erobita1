@@ -208,7 +208,6 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
 }
 
 
-
 void handle_P_command(Puzzle *p) {
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
@@ -253,6 +252,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
     fprintf(stderr, "Could not open output puzzle file '%s'\n", config);
     return 1;
   }
+
   // Implement writing puzzle in same format
   fclose(output_config);
 
@@ -275,7 +275,7 @@ int handle_K_command(Puzzle *p) {
           /* Made this more readable, basically checks that this current position is not equal to the
           expected value, then checks that the current position is not in the last row or last column,
           and it is not the 0 tile (the ending). If true, then puzzle isn't solved. */
-          if (p->grid[i][j] != expected || !(i == p->size-1 || j == p->size-1 || p->grid[i][j] == 0)) {
+          if (p->grid[i][j] != expected || (i != p->size-1 && j != p->size-1 && p->grid[i][j] == 0)) {
               printf("Not solved\n");
               return 1;
             }
