@@ -280,9 +280,49 @@ int handle_W_command(FILE *in, Puzzle *p) {
 
   printf("image = %s, config = %s\n", image, config);
 
+  /* If background image hasn't been read, load it with I command */
+  if (p->bg_image == NULL) {
+    FILE *fp = fopen(image, "rb");
+    if (fp == NULL) {
+      fprintf(stderr, "Could not open image file '%s'\n", image);
+      return 1;
+    }
+
+  if (handle_I_command(fp, p) != 0) {
+      fprintf(stderr, "No image\n");
+      fclose(fp);
+      return 1;
+  }
+  fclose(fp);
+  }
+
+  /* Check that dimensions have been read from image */
+  if (p->bg_image->cols == 0 || p->bg_image->rows == 0) {
+    fprintf(stderr, "Invalid image dimensions\n");
+    return 1;
+  }
+
+  /* Read dimensions from PPM file */
+  int width = p->bg_image->cols;
+  int height = p->bg_image->rows;
+
+  if (width == 0 || height == 0) {
+    fprintf(stderr, "Invalid image dimensions\n");
+    return 1;
+  }
+
+  p->cols = width / p->size;
+  p->rows = height / p->size;
+
+  if (width % p->size != 0 || height % p->size != 0) {
+    fprintf(stderr, "Invalid image dimensions\n");
+    return 1;
+  }
+
   
-  return 0;
-} 
+
+   return 0;
+  }
 
 int handle_K_command(Puzzle *p) {
   // Make sure that the puzzle is defined and is not null, prints No puzzle if there is error, returns 1.
