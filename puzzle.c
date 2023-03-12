@@ -33,6 +33,12 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  Puzzle *p = puzzle_create(puzzle_size);
+  if (p == NULL) {
+    fprintf(stderr, "Error creating puzzle\n");
+      return 1;
+  }
+
   switch (command) {
     case 'T':
       break;
@@ -50,9 +56,7 @@ int main(int argc, char **argv) {
       break;
     case 'Q':
       break;
-    default:
-      fprintf(stderr, "Invalid input\n");
-      return 1;
+  
   }
 
   return 0; 
@@ -144,13 +148,11 @@ int main(int argc, char **argv) {
             break;
         case 'V':
             printf("V\n");
-           /* 
-           if (p == NULL) {
+            if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
               return 1;
             }
             handle_V_command(p);
-           */ 
             break;
         case 'Q':
             /* Exit in case of a Q "Quit" command. */
