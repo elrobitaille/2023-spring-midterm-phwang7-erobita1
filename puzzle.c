@@ -16,8 +16,47 @@ int main(int argc, char **argv) {
   not provide a file for the code to run through, so the user can manually play the 
   game. */
   if (argc == 1) {
-    printf("%d", argc);
+    char command;
+    int puzzle_size;
+    if (scanf(" %c%d", &command, &puzzle_size) != 2) {
+      fprintf(stderr, "Invalid input\n");
+      return 1;
+    }
+
+  if (command != 'C') {
+    fprintf(stderr, "Invalid input\n");
+    return 1;
   }
+
+  if (puzzle_size <= 0 || puzzle_size > 255) {
+    fprintf(stderr, "Invalid puzzle size\n");
+    return 1;
+  }
+
+  switch (command) {
+    case 'T':
+      break;
+    case 'I':
+      break;
+    case 'P':
+      break;
+    case 'W':
+      break;
+    case 'S':
+      break;
+    case 'K':
+      break;
+    case 'V':
+      break;
+    case 'Q':
+      break;
+    default:
+      fprintf(stderr, "Invalid input\n");
+      return 1;
+  }
+
+  return 0; 
+}
 
   /* This is the case for directly reading from the file, provided in the format ./puzzle input.txt. */
   if (argc == 2) {
