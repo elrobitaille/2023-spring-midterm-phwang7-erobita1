@@ -84,6 +84,22 @@ int puzzle_zero_tile(Puzzle *p, int tile, int *row, int *col) {
     return 1;
 }
 
+/* Opposite direction finder for the solve_puzzle function (helper function).  */
+char opposite_direction(char dir) {
+    switch (dir) {
+        case 'u':
+            return 'd';
+        case 'd':
+            return 'u';
+        case 'l':
+            return 'r';
+        case 'r':
+            return 'l';
+        default:
+            return '\0'; // Invalid direction, return null terminator
+    }
+}
+
 int handle_C_command(FILE *in, Puzzle **p) {
   int size = 0; //size of the puzzle size x size (square)
   int size_scan = fscanf(in, " %d\n", &size);
@@ -158,7 +174,7 @@ int handle_T_command(FILE *in, Puzzle *p) {
 
 /* Loads background image from PPM image file */
 int handle_I_command(FILE *in, Puzzle *p) {
-  char image_name[255];
+  char image_name[256];
   /* Throws error if invalid input */
   if (fscanf(in, "%s", image_name) != 1) {
     fprintf(stderr, "Invalid input\n");
@@ -182,6 +198,7 @@ int handle_I_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
+  FreePPM(p->bg_image);
   p->bg_image = new_image;
 
   return 0;
@@ -271,12 +288,17 @@ void handle_P_command(Puzzle *p) {
 
 /* Write puzzle image to ppm_out and puzzle configuration to txt_out */
 int handle_W_command(FILE *in, Puzzle *p) {
-  char image[255]; // instructions say to use 255 as max 
-  char config[255];
+  char image[256]; // instructions say to use 255 as max + null terminator
+  char config[256];
   if (fscanf(in, " %s %s", image, config) != 2) {
     fprintf(stderr, "Invalid input\n");
     return 1;
   } 
+
+  if (!p) {
+    fprintf(stderr, "No puzzle\n");
+    return 1;
+  }
 
   printf("image = %s, config = %s\n", image, config);
 
@@ -288,12 +310,12 @@ int handle_W_command(FILE *in, Puzzle *p) {
       return 1;
     }
 
-  if (handle_I_command(fp, p) != 0) {
+    if (handle_I_command(fp, p) != 0) {
       fprintf(stderr, "No image\n");
       fclose(fp);
       return 1;
-  }
-  fclose(fp);
+    }
+    fclose(fp);
   }
 
   /* Check that dimensions have been read from image */
@@ -319,9 +341,20 @@ int handle_W_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
-  
+  /* Create new Image instance */
+  Image *img = malloc(sizeof(Image));
+  if (img == NULL) {
+    fprintf(stderr, "No image\n");
+    return 1;
+  }
 
-   return 0;
+  img->data = malloc(p->rows * p->cols * sizeof(Pixel));
+  img->rows = p->rows;
+  img->cols = p->cols;
+
+  //still need to add RGB stuff, figuring that out currently
+
+  return 0;
   }
 
 int handle_K_command(Puzzle *p) {
@@ -356,6 +389,38 @@ int handle_K_command(Puzzle *p) {
     /* Successfully solved the puzzle, return 0 and solved.  */
     printf("Solved\n");
     return 0;
+}
+
+int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps) {
+  // Check if the puzzle is already solved. 
+  if (handle_K_command(p) == 0) {
+    return cur_steps;
+  }
+  /* Reached maximum number of steps without solving the puzzle. */
+  if (cur_steps >= max_steps) {
+    return -1;
+  }
+
+  const char *directions = "udlr";
+    for (int i = 0; i < strlen(directions); i++) {
+        char dir = directions[i];
+        int zero_row, zero_col;
+        if (puzzle_find_tile(p, 0, &zero_row, &zero_col) == 0 &&
+            move_tile(p, zero_row, zero_col, dir) == 0) {
+            steps[cur_steps] = dir;
+            int result = solve_puzzle(p, steps, max_steps, cur_steps + 1);
+            if (result >= 0) {
+                return result;
+            }
+            move_tile(p, zero_row, zero_col, opposite_direction(dir));
+        }
+    }  
+
+}
+
+int handle_V_command(Puzzle *p) {
+
+  return 0;
 }
 
 int handle_Q_command(Puzzle *p) {
