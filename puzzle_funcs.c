@@ -184,9 +184,6 @@ int handle_I_command(FILE *in, Puzzle *p) {
 
   p->bg_image = new_image;
 
-  /* Free memory allocated by ReadPPM */
-  FreePPM(p->bg_image);
-
   return 0;
 }
 
@@ -279,12 +276,13 @@ int handle_W_command(FILE *in, Puzzle *p) {
   if (fscanf(in, " %s %s", image, config) != 2) {
     fprintf(stderr, "Invalid input\n");
     return 1;
-  }
+  } 
 
   printf("image = %s, config = %s\n", image, config);
 
+  
   return 0;
-}
+} 
 
 int handle_K_command(Puzzle *p) {
   // Make sure that the puzzle is defined and is not null, prints No puzzle if there is error, returns 1.
