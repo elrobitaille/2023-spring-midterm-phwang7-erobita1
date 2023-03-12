@@ -1,3 +1,5 @@
+// Edgar Robitaille erobita1
+// Patrick Hwang phwang7
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -97,12 +99,19 @@ int main(int argc, char **argv) {
             printf("K\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
-            return 1;
+              return 1;
             }
             handle_K_command(p);
             break;
         case 'V':
             printf("V\n");
+           /* 
+           if (p == NULL) {
+              fprintf(stderr, "No puzzle\n");
+              return 1;
+            }
+            handle_V_command(p);
+           */ 
             break;
         case 'Q':
             /* Exit in case of a Q "Quit" command. */
@@ -112,9 +121,6 @@ int main(int argc, char **argv) {
         default: 
             /* If no accurate command letter is given, catch an invalid command error. 
             Or, if input command is not a valid uppercase character, skip to the next command. */
-            if (input_command < 'A' || input_command > 'Z') {
-              break;
-            }
             fprintf(stderr, "Invalid command '%c'\n", input_command);
             return 1; 
       }
