@@ -100,6 +100,40 @@ char opposite_direction(char dir) {
     }
 }
 
+// Manhattan distance helper function for solve_puzzle implementation. 
+int manhattan_distance(Puzzle *p) {
+    int distance = 0;
+    for (int i = 0; i < p->size; i++) {
+      for (int j = 0; j < p->size; j++) {
+          int val = p->grid[i][j];
+          if (val != 0) {
+              int target_row = (val - 1) / p->size;
+              int target_col = (val - 1) % p->size;
+              distance += abs(target_row - i) + abs(target_col - j);
+          }
+        }
+    }
+    return distance;
+}
+
+/* Creates a new puzzle with the same values as the given puzzle. */
+Puzzle *puzzle_copy(Puzzle *p) {
+    /* Create new puzzle with same size as original. */
+    Puzzle *copy = puzzle_create(p->size);
+    /* Copy values of tiles from the original puzzle to new one. */ 
+    for (int row = 0; row < p->size; row++) {
+        for (int col = 0; col < p->size; col++) {
+            int value = puzzle_get_tile(p, row, col);
+            puzzle_set_tile(copy, row, col, value);
+        }
+    }
+    // Set the row and column indices.
+    copy->row_index = p->row_index;
+    copy->col_index = p->col_index;
+
+    return copy;
+}
+
 int handle_C_command(FILE *in, Puzzle **p) {
   int size = 0; //size of the puzzle size x size (square)
   int size_scan = fscanf(in, " %d\n", &size);
@@ -271,7 +305,7 @@ int handle_S_command(Puzzle *p, char dir) {
     printf("Updated puzzle:\n");
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
-            printf("%d ", puzzle_get_tile(p, i, j));
+            printf("%d ", puzzle_get_tile(p, j, i));
         }
         printf("\n");
     }
@@ -408,15 +442,14 @@ int handle_K_command(Puzzle *p, int output) {
     return 0;
 }
 
-int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps) {
+int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char prev_move) {
   
-  // Check if the puzzle is already solved. 
-
   printf("Current steps: %d\n", cur_steps);
   printf("Current puzzle:\n");
   handle_P_command(p);
   printf("Steps taken: %s\n", steps);
 
+  // Check if the puzzle is already solved. 
   if (handle_K_command(p, 0) == 0) {
     printf("Solved in %d steps: %s\n", cur_steps, steps);
     return cur_steps;
@@ -428,39 +461,23 @@ int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps) {
     return -1;
   }
 
-  const char *directions = "dlru";
-  for (size_t i = 0; i < strlen(directions); i++) {
-    if (directions[i] == opposite_direction(directions[i])) {
-      continue; // Skip the move if it's the same as the last move
-    }
-    Puzzle copy;
-    memcpy(&copy, p, sizeof(Puzzle)); 
-    if (move_tile(&copy, copy.row_index, copy.col_index, directions[i]) == 0) {
-      steps[cur_steps] = directions[i];
-       if (handle_K_command(&copy, 0) == 0) {
-        printf("Solved in %d steps: %s\n", cur_steps + 1, steps);
-        return cur_steps + 1;
-      }
-      int result = solve_puzzle(&copy, steps, max_steps, cur_steps + 1);
-       if (result != -1) {
-        return result;
-      }
-    }
-
-  } 
+  char directions[] = {'u', 'd', 'l', 'r'};
   
   return -1;
-} 
+}
+
 
 int handle_V_command(Puzzle *p) {
+    // Check for no puzzle, meaning null. 
     if (p == NULL) {
         fprintf(stderr, "No puzzle\n");
         return 1;
     }
 
+    // Initialize array of steps then call solve_puzzle to recursively solve the puzzle.
     char steps[256];
-    memset(steps, '\0', sizeof(steps));
-    int result = solve_puzzle(p, steps, 256, 0);
+  
+    int result = solve_puzzle(p, steps, 256, 0, '\0');
 
     if (result < 0) {
         fprintf(stderr, "No solution found\n");
