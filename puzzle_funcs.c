@@ -241,6 +241,9 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
     puzzle_set_tile(p, col, row, next_value);
     puzzle_set_tile(p, new_col, new_row, 0);
 
+    p->row_index = new_row;
+    p->col_index = new_col;
+
     return 0;
 }
 
@@ -352,12 +355,15 @@ int handle_W_command(FILE *in, Puzzle *p) {
   img->rows = p->rows;
   img->cols = p->cols;
 
-  //still need to add RGB stuff, figuring that out currently
+  // add RGB stuff, figuring that out currently
 
   return 0;
   }
 
-int handle_K_command(Puzzle *p) {
+int handle_K_command(Puzzle *p, int output) {
+  /*Takes in puzzle and output variable, which if output = 1 then "Solved" or "Not solved" is printed,
+  otherwise it does not print anything. Output is 1 in puzzle.c, while it is 0 for solve_puzzle function
+  because we don't want anything to be printed in that scenario. */
   // Make sure that the puzzle is defined and is not null, prints No puzzle if there is error, returns 1.
   if (!p) {
         fprintf(stderr, "No puzzle\n");
@@ -374,7 +380,9 @@ int handle_K_command(Puzzle *p) {
           expected value, then checks that the current position is not in the last row or last column,
           and it is not the 0 tile (the ending). If true, then puzzle isn't solved. */
           if (p->grid[i][j] != expected || (i != p->size-1 && j != p->size-1 && p->grid[i][j] == 0)) {
-              printf("Not solved\n");
+              if (output == 1) {
+                printf("Not solved\n");
+              }
               return 1;
             }
             expected++; //increment the expected value 
@@ -387,40 +395,61 @@ int handle_K_command(Puzzle *p) {
         }
     }
     /* Successfully solved the puzzle, return 0 and solved.  */
-    printf("Solved\n");
+    if (output == 1) {
+      printf("Solved\n");
+    }
     return 0;
 }
 
 int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps) {
   // Check if the puzzle is already solved. 
-  if (handle_K_command(p) == 0) {
+  if (handle_K_command(p, 0) == 0) {
+    printf("Solved in %d steps: %s\n", cur_steps, steps);
     return cur_steps;
   }
+
   /* Reached maximum number of steps without solving the puzzle. */
   if (cur_steps >= max_steps) {
     return -1;
   }
 
   const char *directions = "udlr";
-    for (int i = 0; i < strlen(directions); i++) {
-        char dir = directions[i];
-        int zero_row, zero_col;
-        if (puzzle_find_tile(p, 0, &zero_row, &zero_col) == 0 &&
-            move_tile(p, zero_row, zero_col, dir) == 0) {
-            steps[cur_steps] = dir;
-            int result = solve_puzzle(p, steps, max_steps, cur_steps + 1);
-            if (result >= 0) {
-                return result;
-            }
-            move_tile(p, zero_row, zero_col, opposite_direction(dir));
-        }
-    }  
-
+  for (size_t i = 0; i < strlen(directions); i++) {
+    Puzzle copy;
+    memcpy(&copy, p, sizeof(Puzzle));
+    if (move_tile(&copy, copy.row_index, copy.col_index, directions[i]) == 0) {
+      printf("Trying direction %c\n", directions[i]);
+      steps[cur_steps] = directions[i];
+      int result = solve_puzzle(&copy, steps, max_steps, cur_steps + 1);
+      if (result >= 0) {
+        return result;
+      }
+      
+    } 
+    else {
+      printf("Invalid move in direction %c\n", directions[i]);
+    }
+  }
+  return -1;
 }
 
 int handle_V_command(Puzzle *p) {
-
-  return 0;
+    if (p == NULL) {
+        fprintf(stderr, "No puzzle\n");
+        return 1;
+    }
+    char steps[256];
+    memset(steps, '\0', sizeof(steps));
+    int result = solve_puzzle(p, steps, 256, 0);
+    if (result < 0) {
+        fprintf(stderr, "No solution found\n");
+        return 1;
+    }
+    for (int i = 0; i < result; i++) {
+        printf("S %c\n", steps[i]);
+    }
+    printf("Solved in %d steps\n", result);
+    return 0;
 }
 
 int handle_Q_command(Puzzle *p) {
