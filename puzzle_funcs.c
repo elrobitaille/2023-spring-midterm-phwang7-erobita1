@@ -236,6 +236,9 @@ int handle_I_command(FILE *in, Puzzle *p) {
   FreePPM(p->bg_image);
   p->bg_image = new_image;
 
+  /* Free memory allocated by ReadPPM */
+  FreePPM(new_image);
+
   return 0;
 }
 
@@ -326,8 +329,10 @@ void handle_P_command(Puzzle *p) {
 
 /* Write puzzle image to ppm_out and puzzle configuration to txt_out */
 int handle_W_command(FILE *in, Puzzle *p) {
-  char image[256]; // instructions say to use 255 as max + null terminator
+  char image[256];
   char config[256];
+
+  /* Get output file names */
   if (fscanf(in, " %s %s", image, config) != 2) {
     fprintf(stderr, "Invalid input\n");
     return 1;
@@ -345,6 +350,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
     FILE *fp = fopen(image, "rb");
     if (fp == NULL) {
       fprintf(stderr, "Could not open image file '%s'\n", image);
+      fclose(fp);
       return 1;
     }
 
@@ -362,27 +368,58 @@ int handle_W_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
-  /* Read dimensions from PPM file */
-  int width = p->bg_image->cols;
-  int height = p->bg_image->rows;
-
-  if (width == 0 || height == 0) {
+  /* Check bg image dimensions are evenly divisible by puzzle dimensions */
+  if (p->bg_image->cols % p->cols != 0 || p->bg_image->rows % p->rows != 0) {
     fprintf(stderr, "Invalid image dimensions\n");
     return 1;
   }
 
-  p->cols = width / p->size;
-  p->rows = height / p->size;
+  /* New image instance */
+  Image *output_image = (Image *) malloc(sizeof(Image));
+  output_image->rows = p->bg_image->rows;
+  output_image->cols = p->bg_image->cols;
+  output_image->data = (Pixel *) malloc(sizeof(Pixel) * output_image->rows * output_image->cols);
 
-  if (width % p->size != 0 || height % p->size != 0) {
-    fprintf(stderr, "Invalid image dimensions\n");
-    return 1;
+  /* Fill in output image */
+  for (int i = 0; i < output_image->rows; i++) {
+    for (int j = 0; j < output_image->cols; j++) {
+      int tile_size = output_image->cols / p->size;
+      int tile_row = i / tile_size;
+      int tile_col = j / tile_size;
+      /* Set black gap */
+      if (p->grid[tile_row][tile_col] == 0) {
+        output_image->data[i * output_image->cols + j].r = 0;
+        output_image->data[i * output_image->cols + j].g = 0;
+        output_image->data[i * output_image->cols + j].b = 0;
+      }
+      /* Copy bg image otherwise */
+      else {
+        int rowbg = (tile_row * tile_size) + (i % tile_size);
+        int colbg = (tile_col * tile_size) + (j % tile_size);
+        output_image->data[i * output_image->cols + j] = p->bg_image->data[rowbg * p->bg_image->cols + colbg];
+      }
+    }
   }
 
-  /* Create new Image instance */
-  Image *img = malloc(sizeof(Image));
-  if (img == NULL) {
-    fprintf(stderr, "No image\n");
+  /* Open output image for writing */
+  FILE *imgfile = fopen(image, "wb");
+  if (imgfile == NULL) {
+    fprintf(stderr, "Could not open output image file '%s'\n", image);
+    free(output_image->data);
+    free(output_image);
+    return 1;
+  }
+  if (WritePPM(imgfile, p->bg_image) < 0) {
+    return 1;
+  }
+  fclose(imgfile);
+
+  /* Open output config file for writing */
+  FILE *output_config = fopen(config, "w");
+  if (output_config == NULL) {
+    fprintf(stderr, "Could not open output puzzle file '%s'\n", config);
+    free(output_image->data);
+    free(output_image);
     return 1;
   }
 
@@ -393,7 +430,8 @@ int handle_W_command(FILE *in, Puzzle *p) {
   //still need to add RGB stuff, figuring that out currently
 
   FreePPM(img);
-
+  free(img);
+  
   return 0;
   }
 
