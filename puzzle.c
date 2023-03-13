@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
               fprintf(stderr, "No puzzle\n");
               return 1;
             }
-            handle_K_command(p);
+            handle_K_command(p, 1);
             break;
         case 'V':
             printf("V\n");

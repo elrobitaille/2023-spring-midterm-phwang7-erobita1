@@ -1,3 +1,5 @@
+// Edgar Robitaille erobita1
+// Patrick Hwang phwang7
 #ifndef PUZZLE_H
 #define PUZZLE_H
 
@@ -25,12 +27,14 @@ int handle_C_command(FILE *in, Puzzle **p);
 int handle_T_command(FILE *in, Puzzle *p);
 int handle_I_command(FILE *in, Puzzle *p);
 int handle_W_command(FILE *in, Puzzle *p);
-int handle_V_command(FILE *in, Puzzle *p);
-int handle_K_command(Puzzle *p);
+int handle_V_command(Puzzle *p);
+int handle_K_command(Puzzle *p, int output);
 int handle_Q_command(Puzzle *p);
 void handle_P_command(Puzzle *p);
 int move_tile(Puzzle *p, int row, int col, char dir);
 int handle_S_command(Puzzle *p, char dir);
-
+int puzzle_zero_tile(Puzzle *p, int tile, int *row, int *col);
+int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps);
+char opposite_direction(char dir);
 
 #endif // PUZZLE_H
