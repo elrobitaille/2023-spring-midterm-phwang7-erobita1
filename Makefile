@@ -10,7 +10,7 @@ LDLIBS = -lm
 
 all: puzzle puzzle_tests
 
-puzzle: ppm_io.o puzzle_funcs.o puzzle.oma
+puzzle: ppm_io.o puzzle_funcs.o puzzle.o
 	$(GCC) -o puzzle ppm_io.o puzzle_funcs.o puzzle.o $(LDLIBS)
 
 ppm_io.o: ppm_io.c ppm_io.h
