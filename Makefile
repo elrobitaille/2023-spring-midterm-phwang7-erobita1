@@ -8,9 +8,9 @@ CFLAGS = $(CONSERVATIVE_FLAGS) $(DEBUGGING_FLAGS)
 
 LDLIBS = -lm
 
-all: puzzle
+all: puzzle puzzle_tests
 
-puzzle: ppm_io.o puzzle_funcs.o puzzle.o
+puzzle: ppm_io.o puzzle_funcs.o puzzle.oma
 	$(GCC) -o puzzle ppm_io.o puzzle_funcs.o puzzle.o $(LDLIBS)
 
 ppm_io.o: ppm_io.c ppm_io.h
@@ -19,14 +19,17 @@ ppm_io.o: ppm_io.c ppm_io.h
 puzzle_funcs.o: puzzle_funcs.c ppm_io.h puzzle.h
 	$(GCC) -c puzzle_funcs.c $(CFLAGS)
 
-puzzle.o: puzzle.c puzzle.h ppm_io.h
+puzzle.o: puzzle.c puzzle.h ppm_io.h 
 	$(GCC) -c puzzle.c $(CFLAGS)
 
-puzzle_tests.o: puzzle_tests.c puzzle.h ppm_io.h
+puzzle_tests: puzzle_tests.o puzzle_funcs.o ppm_io.o
+	$(GCC) -o puzzle_tests puzzle_funcs.o puzzle_tests.o ppm_io.o $(LDLIBS)
+
+puzzle_tests.o: puzzle_tests.c puzzle.h
 	$(GCC) -c puzzle_tests.c $(CFLAGS)
 
 clean:
-	rm -f puzzle *.o
+	rm -f puzzle puzzle_tests *.o
 
 test: puzzle_tests
 	./puzzle_tests
