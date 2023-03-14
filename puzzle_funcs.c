@@ -116,6 +116,7 @@ int manhattan_distance(Puzzle *p) {
     return distance;
 }
 
+
 /* Creates a new puzzle with the same values as the given puzzle. */
 Puzzle *puzzle_copy(Puzzle *p) {
     /* Create new puzzle with same size as original. */
@@ -136,7 +137,7 @@ Puzzle *puzzle_copy(Puzzle *p) {
 
 int handle_C_command(FILE *in, Puzzle **p) {
   int size = 0; //size of the puzzle size x size (square)
-  int size_scan = fscanf(in, " %d\n", &size);
+  int size_scan = fscanf(in," %d\n", &size);
 
   /* Catch puzzle size error or missing/invalid command for C. */
   if (size < 2 || size > 20) {
@@ -246,29 +247,31 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
     switch (dir) {
         case 'u':
             new_col = col + 1;
-            printf("New position: (%d, %d)\n", new_col, row);
+            printf("New position: (%d, %d)\n", row, new_col);
             break;
         case 'd':
             new_col = col - 1;
-            printf("New position: (%d, %d)\n", new_col, row);
+            printf("New position: (%d, %d)\n", row, new_col);
             break;
         case 'l':
             new_row = row + 1;
-            printf("New position: (%d, %d)\n", col, new_row);
+            printf("New position: (%d, %d)\n", new_row, col);
             break;
         case 'r':
             new_row = row - 1;
-            printf("New position: (%d, %d)\n", col, new_row);
+            printf("New position: (%d, %d)\n", new_row, col);
             break;
         default:
             // Invalid case that does not use any correct letter movement. 
-            fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+            fprintf(stderr, "Puzzle cannot be moved in specified direction1\n");
+            handle_K_command(p, 1);
             return 1;
     }
 
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
     if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+        fprintf(stderr, "Puzzle cannot be moved in specified direction2\n");
+        handle_K_command(p, 1);
         return 1;
     }
 
@@ -283,10 +286,65 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
     p->row_index = new_row;
     p->col_index = new_col;
 
-    printf("Tile moved %c from (%d, %d) to (%d, %d)\n", dir, col,row, new_col, new_row);
+    
+    handle_P_command(p);
 
     return 0;
 }
+
+/* Move a tile in the specified direction, will be called by handle_S_command function. */
+int move_tile1(Puzzle *p, int row, int col, char dir) {
+    int new_row = row, new_col = col;
+
+    /* Switch case for each direction: up, down, left, right, for the game to move the tile. */
+    switch (dir) {
+        case 'u':
+            new_row = row - 1;
+            //printf("New position: (%d, %d)\n", row, new_col);
+            break;
+        case 'd':
+            new_row = row + 1;
+            //printf("New position: (%d, %d)\n", row, new_col);
+            break;
+        case 'l':
+            new_col = col - 1;
+            //printf("New position: (%d, %d)\n", new_row, col);
+            break;
+        case 'r':
+            new_col = col + 1;
+            //printf("New position: (%d, %d)\n", new_row, col);
+            break;
+        default:
+            // Invalid case that does not use any correct letter movement. 
+            fprintf(stderr, "Puzzle cannot be moved in specified direction3\n");
+            return 1;
+    }
+
+    /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
+    if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
+        fprintf(stderr, "Puzzle cannot be moved in specified direction4\n");
+        handle_K_command(p, 1);
+        handle_P_command(p);
+        return 1;
+    }
+
+    
+    // Set the puzzle tiles using the getter and setter functions. 
+    int next_value = puzzle_get_tile(p, new_row, new_col);
+
+    /* Set the tiles accordingly using the set_tile function. */
+    puzzle_set_tile(p, row, col, next_value);
+    puzzle_set_tile(p, new_row, new_col, 0);
+
+    p->row_index = new_row;
+    p->col_index = new_col;
+    //printf("Moving tile %d from (%d,%d) to (%d,%d) in direction %c\n", 
+    //puzzle_get_tile(p, row, col), col, row, new_col, new_row, dir);
+    handle_P_command(p);
+
+    return 0;
+}
+
 
 int handle_S_command(Puzzle *p, char dir) {
     /* Make sure that the direction is a valid letter. */
@@ -312,7 +370,7 @@ int handle_S_command(Puzzle *p, char dir) {
 
     /* Say puzzle cannot be moved in a certain direction if error is reached by move_tile function. */
     if (move_tile(p, zero_row, zero_col, dir) != 0) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+        fprintf(stderr, "Puzzle cannot be moved in specified direction5\n");
         return 1;
     }
   
@@ -420,19 +478,25 @@ int handle_K_command(Puzzle *p, int output) {
           /* Basically checks that this current position is not equal to the
           expected value, then checks that the current position is not in the last row or last column,
           and it is not the 0 tile (the ending). If true, then puzzle isn't solved. */
-          if (p->grid[i][j] != expected || (i != p->size-1 && j != p->size-1 && p->grid[i][j] == 0)) {
-              if (output == 1) {
-                printf("Not solved\n");
-              }
-              return 1;
+          if (expected <= n && p->grid[i][j] != expected) {
+                if (output == 1) {
+                    printf("Not solved\n");
+                }
+                return 1;
             }
-            expected++; //increment the expected value 
-            if (expected > n) { // checks that expected value hasnt exceeded max value allowed.
-              break;
+            if (i == p->size - 1 && j == p->size - 1 && p->grid[i][j] != 0) {
+                if (output == 1) {
+                    printf("Not solved\n");
+                }
+                return 1;
+            }
+            expected++;
+            if (expected > n) {
+                break;
             }
         }
-        if (expected > n) { // checking same condition outside first for loop
-          break;
+        if (expected > n) {
+            break;
         }
     }
     /* Successfully solved the puzzle, return 0 and solved.  */
@@ -443,29 +507,43 @@ int handle_K_command(Puzzle *p, int output) {
 }
 
 int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char prev_move) {
-  
-  printf("Current steps: %d\n", cur_steps);
-  printf("Current puzzle:\n");
-  handle_P_command(p);
-  printf("Steps taken: %s\n", steps);
+    // If the puzzle is solved, exit and print num steps. 
+    if (handle_K_command(p, 0) == 0) {
+      printf("Solved in %d steps: %s\n", cur_steps, steps);
+      return cur_steps;
+    }
 
-  // Check if the puzzle is already solved. 
-  if (handle_K_command(p, 0) == 0) {
-    printf("Solved in %d steps: %s\n", cur_steps, steps);
-    return cur_steps;
-  }
+    // If exceeded number of steps then there's no solution. 
+    if (cur_steps >= max_steps) {
+      fprintf(stderr, "No solution found\n");
+      return -1;
+    }
 
-  /* Reached maximum number of steps without solving the puzzle. */
-  if (cur_steps >= max_steps) {
-    fprintf(stderr, "No solution found\n");
+    // All of the characters included. 
+
+    char directions[] = {'u', 'd', 'l', 'r'};
+
+    for (int i = 0; i < 4; i++) {
+        char dir = directions[i];
+
+        //skip the opposite direction case to optimize 
+        if (dir == opposite_direction(prev_move)) {
+            continue;
+        }
+        //Create a copy as said by the pseudocode. 
+        Puzzle *copy = puzzle_copy(p);
+        if (move_tile1(copy, copy->col_index, copy->row_index, dir)) {
+            int result = solve_puzzle(copy, steps, max_steps, cur_steps + 1, dir);
+            if (result != -1) {
+                steps[cur_steps] = dir;
+                puzzle_destroy(copy);
+                return result;
+            }
+        }
+        puzzle_destroy(copy);
+    }
     return -1;
-  }
-
-  char directions[] = {'u', 'd', 'l', 'r'};
-  
-  return -1;
 }
-
 
 int handle_V_command(Puzzle *p) {
     // Check for no puzzle, meaning null. 
@@ -475,7 +553,7 @@ int handle_V_command(Puzzle *p) {
     }
 
     // Initialize array of steps then call solve_puzzle to recursively solve the puzzle.
-    char steps[256];
+    char steps[256] = {0};
   
     int result = solve_puzzle(p, steps, 256, 0, '\0');
 
@@ -488,9 +566,11 @@ int handle_V_command(Puzzle *p) {
         printf("S %c\n", steps[i]);
     }
 
+    steps[result] = '\0';
+
     printf("Solved in %d steps\n", result);
     return 0;
-}
+} 
 
 int handle_Q_command(Puzzle *p) {
   if (p != NULL) {
