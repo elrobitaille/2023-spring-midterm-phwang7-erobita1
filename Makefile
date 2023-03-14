@@ -1,6 +1,6 @@
 # Midterm Project
-# Edgar Robitaille - erobita1
-# Patrick Hwang - phwang7
+# Edgar Robitaille erobita1
+# Patrick Hwang phwang7
 GCC = gcc
 CONSERVATIVE_FLAGS = -std=c99 -Wall -Wextra -pedantic
 DEBUGGING_FLAGS = -g -O0
@@ -22,8 +22,14 @@ puzzle_funcs.o: puzzle_funcs.c ppm_io.h puzzle.h
 puzzle.o: puzzle.c puzzle.h ppm_io.h
 	$(GCC) -c puzzle.c $(CFLAGS)
 
+puzzle_tests.o: puzzle_tests.c puzzle.h ppm_io.h
+	$(GCC) -c puzzle_tests.c $(CFLAGS)
+
 clean:
 	rm -f puzzle *.o
+
+test: puzzle_tests
+	./puzzle_tests
 
 run: puzzle
 	./puzzle $(input_file)
