@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
           }
 
           // Check if puzzle has a wrong size. 
-          if (puzzle_size <= 0 || puzzle_size > 255) {
+          if (puzzle_size < 2 || puzzle_size > 20) {
             fprintf(stderr, "Invalid puzzle size\n");
             return 1;
           }
@@ -86,6 +86,7 @@ int main(int argc, char **argv) {
           break;
 
         case 'S':
+          ;
           /* Slides the 0 tile in the direction specified in the file. */
           char direction;
           if (scanf(" %c", &direction) != 1) {
@@ -231,7 +232,6 @@ int main(int argc, char **argv) {
             return 1; 
       }
     }
-
     fclose(game_input);
   }
 
