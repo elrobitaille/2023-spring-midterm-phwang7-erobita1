@@ -468,7 +468,10 @@ int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char pre
 
     // All of the characters included, try each move in this order, then run recursively. 
     char directions[] = {'u', 'd', 'l', 'r'};
+    int optimal_distance = INT_MAX; 
+    int new_index = -1;
 
+    // Loop through each direction, 4 characters so i < 4. 
     for (int i = 0; i < 4; i++) {
         char dir = directions[i];
 
@@ -476,19 +479,20 @@ int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char pre
         if (dir == opposite_direction(prev_move)) {
             continue; //Skip this direction because the opposite is already tried, so it is pointless to do same.
         }
+
         /* Create a copy as said by the pseudocode, use puzzle_copy function to create copy. */
         Puzzle *copy = puzzle_copy(p);
+        /* Move the tile in current direction. */
         if (move_tile(copy, copy->row_index, copy->col_index, dir, 0) == 0) {
-            int col = 0, row = 0;
-            puzzle_zero_tile(copy, 0, &row, &col);
-            
-            int result = solve_puzzle(copy, steps, max_steps, cur_steps + 1, dir);
-            if (result != -1) {
-                steps[cur_steps] = dir;
-                puzzle_destroy(copy);
-                return result;
-            }
+           // Use the manhattan distance function to find the manhattan distance after moving.
+           int distance = manhattan_distance(copy);
+           // This will update the "new" index and determine the best distance (ie if distance is smaller its better).
+           if (distance < optimal_distance) {
+              optimal_distance = distance;
+              new_index = i;
+           }
         }
+        // Get rid of the puzzle copy. 
         puzzle_destroy(copy);
     }
     return -1;
@@ -504,18 +508,19 @@ int handle_V_command(Puzzle *p) {
     // Initialize array of steps then call solve_puzzle to recursively solve the puzzle.
     char steps[256] = {0};
   
+    // Calls the solve_puzzle recursively with 256 steps and puts in result. 
     int result = solve_puzzle(p, steps, 256, 0, '\0');
 
+    /* If result is invalid then there is no solution. */
     if (result < 0) {
         fprintf(stderr, "No solution found\n");
         return 1;
     }
 
+    /* Iterate through the successes and print out the corresponding directions.*/
     for (int i = 0; i < result; i++) {
         printf("S %c\n", steps[i]);
     }
-
-    printf("Solved in %d steps\n", result);
 
     return 0;
 }
