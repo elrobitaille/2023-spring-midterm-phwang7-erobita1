@@ -17,23 +17,27 @@ typedef struct {
   Image *bg_image; // Background image 
 } Puzzle;
 
+/* Main puzzle functions to create and destroy the puzzle. */
 Puzzle *puzzle_create(int size);
 void puzzle_destroy(Puzzle *p);
 void puzzle_set_tile(Puzzle *p, int col, int row, int value);
 int puzzle_get_tile(const Puzzle *p, int col, int row);
+int puzzle_zero_tile(Puzzle *p, int *row, int *col);
+char opposite_direction(char dir);
+Puzzle *puzzle_copy(Puzzle *p);
+int manhattan_distance(Puzzle *p);
+
 /* Commands to handle each first letter command case. */
 int handle_C_command(FILE *in, Puzzle **p);
 int handle_T_command(FILE *in, Puzzle *p);
 int handle_I_command(FILE *in, Puzzle *p);
-int handle_W_command(FILE *in, Puzzle *p);
-int handle_V_command(Puzzle *p);
-int handle_K_command(Puzzle *p, int output);
-int handle_Q_command(Puzzle *p);
-void handle_P_command(Puzzle *p);
 int move_tile(Puzzle *p, int row, int col, char dir, int output);
+void handle_P_command(Puzzle *p);
+int handle_W_command(FILE *in, Puzzle *p);
 int handle_S_command(Puzzle *p, char dir);
-int puzzle_zero_tile(Puzzle *p, int *row, int *col);
-//int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char prev_move, int row, int col);
-char opposite_direction(char dir);
+int handle_K_command(Puzzle *p, int output);
+int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char prev_move);
+int handle_V_command(Puzzle *p);
+int handle_Q_command(Puzzle *p);
 
 #endif // PUZZLE_H
