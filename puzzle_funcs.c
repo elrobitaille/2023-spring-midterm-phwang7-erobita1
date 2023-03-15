@@ -306,19 +306,8 @@ int handle_S_command(Puzzle *p, char dir) {
         fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
         return 1;
     }
-
-    printf("After move:\n");
-    for (int i = 0; i < p->size; i++) {
-        for (int j = 0; j < p->size; j++) {
-            printf("%d ", puzzle_get_tile(p, i, j));
-        }
-        printf("\n");
-    }
-
-     
-  
+    
     return 0;
-
 }
 
 void handle_P_command(Puzzle *p) {
