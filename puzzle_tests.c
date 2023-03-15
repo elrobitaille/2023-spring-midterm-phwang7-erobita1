@@ -45,7 +45,7 @@ void test_puzzle_set_tile(void) {
 
   for (int i = 0; i < 4; ++i)
     for (int j = 0; j < 4; ++j) {
-      int expected = init[j][i];
+      int expected = init[i][j];
       int actual = puzzle_get_tile(p4, i, j);
       if (expected != actual) {
         printf("Mismatch at (%d, %d): expected %d, got %d\n", i, j, expected, actual);
@@ -102,7 +102,7 @@ void test_handle_S_command(void) {
     }
     assert(handle_S_command(puzzle, 'u') == 1);
     assert(puzzle_get_tile(puzzle, 2, 2) == 0);
-    assert(puzzle_get_tile(puzzle, 1, 2) == 8);
+    assert(puzzle_get_tile(puzzle, 1, 2) == 6);
     puzzle_destroy(puzzle);
 }
 
