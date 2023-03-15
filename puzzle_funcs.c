@@ -270,17 +270,14 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
         return 1;
     }
 
-    // Set the puzzle tiles using the getter and setter functions. 
     int next_value = puzzle_get_tile(p, new_row, new_col);
-
-    /* Set the tiles accordingly using the set_tile function. */
     puzzle_set_tile(p, row, col, next_value);
     puzzle_set_tile(p, new_row, new_col, 0);
+    
 
     p->row_index = new_row;
     p->col_index = new_col;
 
-    handle_P_command(p);
 
     return 0;
 }
@@ -299,7 +296,17 @@ int handle_S_command(Puzzle *p, char dir) {
         return 1;
     }
 
-    printf("Updated puzzle:\n");
+    printf("Direction: %c\n", dir);
+    printf("Zero tile at: (%d, %d)\n", zero_row, zero_col);
+
+
+    /* Say puzzle cannot be moved in a certain direction if error is reached by move_tile function. */
+    if (move_tile(p, zero_row, zero_col, dir) != 0) {
+        fprintf(stderr, "Puzzle cannot be moved in specified direction5\n");
+        return 1;
+    }
+
+    printf("After move:\n");
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
             printf("%d ", puzzle_get_tile(p, i, j));
@@ -307,15 +314,12 @@ int handle_S_command(Puzzle *p, char dir) {
         printf("\n");
     }
 
-    /* Say puzzle cannot be moved in a certain direction if error is reached by move_tile function. */
-    if (move_tile(p, zero_row, zero_col, dir) != 0) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction5\n");
-        return 1;
-    }
+     
   
     return 0;
 
 }
+
 
 void handle_P_command(Puzzle *p) {
   /* Iterate through the 2D array and print the values in a single line. */
@@ -448,20 +452,19 @@ int handle_K_command(Puzzle *p, int output) {
 int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char prev_move) {
     // If the puzzle is solved, exit and print num steps. 
     if (handle_K_command(p, 0) == 0) {
-        printf("Solved in %d steps: %s\n", cur_steps, steps);
-        return cur_steps;
+      //printf("Solved in %d steps: %s\n", cur_steps, steps);
+      return cur_steps;
     }
 
     // If exceeded number of steps then there's no solution. 
     if (cur_steps >= max_steps) {
-        if (cur_steps == 0) {
-            fprintf(stderr, "No solution found\n");
-        }
-        return -1;
+      fprintf(stderr, "No solution found\n");
+      return -1;
     }
 
-    // Change the order of the characters (directions) included. 
-    char directions[] = {'r', 'l', 'd', 'u'};
+    // All of the characters included. 
+
+    char directions[] = {'u', 'd', 'l', 'r'};
 
     for (int i = 0; i < 4; i++) {
         char dir = directions[i];
@@ -472,7 +475,7 @@ int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char pre
         }
         //Create a copy as said by the pseudocode. 
         Puzzle *copy = puzzle_copy(p);
-        if (move_tile1(copy, copy->col_index, copy->row_index, dir)) {
+        if (move_tile(copy, copy->row_index, copy->col_index, dir) == 0) {
             int result = solve_puzzle(copy, steps, max_steps, cur_steps + 1, dir);
             if (result != -1) {
                 steps[cur_steps] = dir;
@@ -486,21 +489,34 @@ int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char pre
 }
 
 int handle_V_command(Puzzle *p) {
-    if (!p) {
-        fprintf(stderr, "Puzzle is NULL\n");
+    // Check for no puzzle, meaning null. 
+    if (p == NULL) {
+        fprintf(stderr, "No puzzle\n");
         return 1;
     }
 
-    int max_steps = 100;
-    char steps[max_steps + 1];
-    steps[max_steps] = '\0';
+    // Define mapping between current switch statement values and expected values
+    char dir_mapping[] = {'r', 'l', 'u', 'd'};
 
-    int result = solve_puzzle(p, steps, max_steps, 0, '\0');
-    if (result == -1) {
+    // Initialize array of steps then call solve_puzzle to recursively solve the puzzle.
+    char steps[256] = {0};
+  
+    int result = solve_puzzle(p, steps, 256, 0, '\0');
+
+    if (result < 0) {
         fprintf(stderr, "No solution found\n");
         return 1;
     }
 
+    for (int i = 0; i < result; i++) {
+        // Convert current switch statement value to expected value using mapping
+        char mapped_dir = dir_mapping[(int)steps[i] - (int)'u'];
+        printf("S %c\n", mapped_dir);
+    }
+
+    steps[result] = '\0';
+
+    printf("Solved in %d steps\n", result);
     return 0;
 }
 
