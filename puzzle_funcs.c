@@ -240,6 +240,7 @@ int handle_I_command(FILE *in, Puzzle *p) {
   return 0;
 }
 
+/* Move a tile in the specified direction, will be called by handle_S_command function. */
 int move_tile(Puzzle *p, int row, int col, char dir) {
     int new_row = row, new_col = col;
 
@@ -282,46 +283,6 @@ int move_tile(Puzzle *p, int row, int col, char dir) {
     handle_P_command(p);
 
     return 0;
-}
-
-/* Move a tile in the specified direction, will be called by handle_S_command function. */
-int move_tile1(Puzzle *p, int row, int col, char dir) {
-    int new_row = row, new_col = col;
-
-    switch (dir) {
-        case 'u':
-            new_row = row - 1;
-            break;
-        case 'd':
-            new_row = row + 1;
-            break;
-        case 'l':
-            new_col = col - 1;
-            break;
-        case 'r':
-            new_col = col + 1;
-            break;
-        default:
-            return 1;
-    }
-
-    if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
-        return 1;
-    }
-
-    if (p->grid[new_row][new_col] == 0) {
-        return 0;
-    }
-
-    int next_value = puzzle_get_tile(p, new_row, new_col);
-
-    puzzle_set_tile(p, row, col, next_value);
-    puzzle_set_tile(p, new_row, new_col, 0);
-
-    p->row_index = new_row;
-    p->col_index = new_col;
-
-    return 1;
 }
 
 int handle_S_command(Puzzle *p, char dir) {
