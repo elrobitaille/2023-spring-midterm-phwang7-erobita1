@@ -409,7 +409,9 @@ int handle_W_command(FILE *in, Puzzle *p) {
     free(output_image);
     return 1;
   }
-  if (WritePPM(imgfile, p->bg_image) < 0) {
+  
+  /* Check WritePPM fails to successfully write PPM data */
+  if (WritePPM(imgfile, output_image) < 0) {
     return 1;
   }
   fclose(imgfile);
