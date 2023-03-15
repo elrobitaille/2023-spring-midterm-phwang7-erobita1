@@ -456,7 +456,7 @@ int handle_K_command(Puzzle *p, int output) {
 int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char prev_move) {
     // If the puzzle is solved, exit and print num steps. 
     if (handle_K_command(p, 0) == 0) {
-      //printf("Solved in %d steps: %s\n", cur_steps, steps);
+      steps[cur_steps] = '\0'; //End the array and terminate with the null terminator. 
       return cur_steps;
     }
 
@@ -466,19 +466,22 @@ int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char pre
       return -1;
     }
 
-    // All of the characters included. 
+    // All of the characters included, try each move in this order, then run recursively. 
     char directions[] = {'u', 'd', 'l', 'r'};
 
     for (int i = 0; i < 4; i++) {
         char dir = directions[i];
 
-        //skip the opposite direction case to optimize 
+        /* This optimizes the brute force + manhattan heuristic approach as it avoids redundancy. */
         if (dir == opposite_direction(prev_move)) {
-            continue;
+            continue; //Skip this direction because the opposite is already tried, so it is pointless to do same.
         }
-        //Create a copy as said by the pseudocode. 
+        /* Create a copy as said by the pseudocode, use puzzle_copy function to create copy. */
         Puzzle *copy = puzzle_copy(p);
         if (move_tile(copy, copy->row_index, copy->col_index, dir, 0) == 0) {
+            int col = 0, row = 0;
+            puzzle_zero_tile(copy, 0, &row, &col);
+            
             int result = solve_puzzle(copy, steps, max_steps, cur_steps + 1, dir);
             if (result != -1) {
                 steps[cur_steps] = dir;
@@ -498,9 +501,6 @@ int handle_V_command(Puzzle *p) {
         return 1;
     }
 
-    // Define mapping between current switch statement values and expected values
-    char dir_mapping[] = {'r', 'l', 'u', 'd'};
-
     // Initialize array of steps then call solve_puzzle to recursively solve the puzzle.
     char steps[256] = {0};
   
@@ -512,14 +512,11 @@ int handle_V_command(Puzzle *p) {
     }
 
     for (int i = 0; i < result; i++) {
-        // Convert current switch statement value to expected value using mapping
-        char mapped_dir = dir_mapping[(int)steps[i] - (int)'u'];
-        printf("S %c\n", mapped_dir);
+        printf("S %c\n", steps[i]);
     }
 
-    steps[result] = '\0';
-
     printf("Solved in %d steps\n", result);
+
     return 0;
 }
 
