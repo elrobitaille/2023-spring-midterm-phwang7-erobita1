@@ -327,7 +327,7 @@ void handle_P_command(Puzzle *p) {
     printf("\n");
 }
 
-/* Write puzzle image to ppm_out and puzzle configuration to txt_out */
+/* Write puzzle image to image and puzzle configuration to config */
 int handle_W_command(FILE *in, Puzzle *p) {
   char image[256];
   char config[256];
@@ -424,18 +424,19 @@ int handle_W_command(FILE *in, Puzzle *p) {
     free(output_image);
     return 1;
   }
-
-  img->data = malloc(p->rows * p->cols * sizeof(Pixel));
-  img->rows = p->rows;
-  img->cols = p->cols;
-
-  //still need to add RGB stuff, figuring that out currently
-
-  FreePPM(img);
-  free(img);
-  
-  return 0;
+  // Add error Could not write puzzle data 'filename'
+  for (int i = 0; i < p->size; i++) {
+    for (int j = 0; j < p->size; j++) {
+      fprintf(output_config, "%d ", p->grid[i][j]);
+    }
   }
+  fprintf(output_config, "\n");
+
+  /* Clear memory */
+  fclose(output_config);
+  FreePPM(output_image);
+  return 0;
+}
 
 int handle_K_command(Puzzle *p, int output) {
   /*Takes in puzzle and output variable, which if output = 1 then "Solved" or "Not solved" is printed,
