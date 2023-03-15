@@ -97,7 +97,6 @@ char opposite_direction(char dir) {
         case 'r':
             return 'l';
         default:
-            fprintf(stderr, "Invalid Input\n");
             return '\0'; // Invalid direction, return null terminator
     }
 }
@@ -181,7 +180,6 @@ int handle_T_command(FILE *in, Puzzle *p) {
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
             tile_input = fscanf(in, " %d", &tile);
-            printf("%d\n", tile);
 
             /* Makes sure that the tile values are correct and valid. */
             if (tile < 0 || tile >= num_tiles) {
@@ -235,9 +233,7 @@ int handle_I_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
-  if (p->bg_image != NULL) {
-    FreePPM(p->bg_image);
-  }
+  FreePPM(p->bg_image);
   p->bg_image = new_image;
 
   return 0;
@@ -306,7 +302,15 @@ int handle_S_command(Puzzle *p, char dir) {
         fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
         return 1;
     }
-    
+
+    printf("Puzzle Setup:\n");
+    for (int i = 0; i < p->size; i++) {
+        for (int j = 0; j < p->size; j++) {
+            printf("%d ", puzzle_get_tile(p, i, j));
+        }
+        printf("\n");
+    }
+
     return 0;
 }
 
@@ -334,7 +338,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
-  printf("image = %s, config = %s\n", image, config);
+  //printf("image = %s, config = %s\n", image, config);
 
   /* If background image hasn't been read, load it with I command */
   if (p->bg_image == NULL) {
@@ -389,8 +393,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
   //still need to add RGB stuff, figuring that out currently
 
   FreePPM(img);
-  free(img);
-  
+
   return 0;
   }
 
