@@ -235,7 +235,9 @@ int handle_I_command(FILE *in, Puzzle *p) {
     return 1;
   }
 
-  FreePPM(p->bg_image);
+  if (p->bg_image != NULL) {
+    FreePPM(p->bg_image);
+  }
   p->bg_image = new_image;
 
   return 0;
@@ -397,6 +399,9 @@ int handle_W_command(FILE *in, Puzzle *p) {
 
   //still need to add RGB stuff, figuring that out currently
 
+  FreePPM(img);
+  free(img);
+  
   return 0;
   }
 
@@ -540,7 +545,9 @@ int handle_V_command(Puzzle *p) {
     return 0;
 }
 
+/* Quits the puzzle when "Q" is passed. */
 int handle_Q_command(Puzzle *p) {
+  /* No puzzle, so destroy it. */
   if (p != NULL) {
     puzzle_destroy(p);
   }
