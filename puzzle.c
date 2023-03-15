@@ -138,7 +138,6 @@ int main(int argc, char **argv) {
     while (fscanf(game_input, " %c", &input_command) == 1) {
       switch (input_command) {
         case 'C':
-            printf("C\n");
             /* Check if there was an error for the C command. */
             if (handle_C_command(game_input, &p) != 0) {
               return 1; 
@@ -146,7 +145,6 @@ int main(int argc, char **argv) {
             break;
         case 'T':
             /* Grab the T command and check the tiles. */
-            printf("T\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
             return 1;
@@ -157,7 +155,6 @@ int main(int argc, char **argv) {
             break; 
         case 'I': 
             /* Initializes the background and sets the image as specified. */
-            printf("I\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
               return 1;
@@ -168,7 +165,6 @@ int main(int argc, char **argv) {
             break;
         case 'P':
             /* Print the current orientation of the puzzle in a single line. */
-            printf("P\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
             return 1;
@@ -177,7 +173,6 @@ int main(int argc, char **argv) {
             break;
         case 'W':
             /* Load the image and add RGB values, and slice up the image. */
-            printf("W\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
               return 1;
@@ -204,7 +199,6 @@ int main(int argc, char **argv) {
             break;
         case 'K':
             /* Print whether or not the current configuration of the puzzle is solved. */
-            printf("K\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
               return 1;
@@ -213,7 +207,6 @@ int main(int argc, char **argv) {
             break;
         case 'V':
             /* Recursively solve the puzzle on its own using brute force approach. */
-            printf("V\n");
             if (p == NULL) {
               fprintf(stderr, "No puzzle\n");
               return 1;
@@ -222,7 +215,6 @@ int main(int argc, char **argv) {
             break;
         case 'Q':
             /* Exit in case of a Q "Quit" command. */
-            printf("Q\n");
             handle_Q_command(p);
             break;
         default: 
