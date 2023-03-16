@@ -187,7 +187,7 @@ int handle_T_command(FILE *in, Puzzle *p) {
 
             /* Makes sure that the tile values are correct and valid. */
             if (tile < 0 || tile >= num_tiles) {
-                fprintf(stderr, "Invalid tile value\n");
+                fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
                 return 1;
             }
 
@@ -444,9 +444,12 @@ for (int i = 0; i < output_image->rows; i++) {
   // Write puzzle data to the config file
   for (int i = 0; i < p->size; i++) {
     for (int j = 0; j < p->size; j++) {
+      if (i == p->size - 1 && j == p->size - 1) {
+      fprintf(output_config, "%d", p->grid[i][j]);
+    } else {
       fprintf(output_config, "%d ", p->grid[i][j]);
+      }
     }
-    fprintf(output_config, "\n");
   }
 
   /* Clear memory */
