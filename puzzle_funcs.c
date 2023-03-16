@@ -391,35 +391,38 @@ int handle_W_command(FILE *in, Puzzle *p) {
   output_image->data = (Pixel *) malloc(sizeof(Pixel) * output_image->rows * output_image->cols);
 
   /* Fill in output image */
-  int tile_rows_size = output_image->rows / p->rows;
-  int tile_cols_size = output_image->cols / p->cols;
-for (int i = 0; i < output_image->rows; i++) {
+  int tile_rows_size = output_image->rows / p->size;
+  int tile_cols_size = output_image->cols / p->size;
+  printf("Tile rows size: %d\n", tile_rows_size);
+  printf("Tile cols size: %d\n", tile_cols_size);
+
+  for (int i = 0; i < output_image->rows; i++) {
     for (int j = 0; j < output_image->cols; j++) {
-        int tile_row = i / tile_rows_size;
-        int tile_col = j / tile_cols_size;
+      int tile_row = i / tile_rows_size;
+      int tile_col = j / tile_cols_size;
 
-        if (tile_row < p->size && tile_col < p->size) {
-            int tile_value = p->grid[tile_row][tile_col];
+    if (tile_row < p->size && tile_col < p->size) {
+      int tile_value = p->grid[tile_row][tile_col];
 
-            if (tile_value == 0) {
-                output_image->data[i * output_image->cols + j].r = 0;
-                output_image->data[i * output_image->cols + j].g = 0;
-                output_image->data[i * output_image->cols + j].b = 0;
-            }
-            /* Copy bg image otherwise */
-            else {
-                int correct_tile_row = (tile_value - 1) / p->cols;
-                int correct_tile_col = (tile_value - 1) % p->cols;
-                int rowbg = correct_tile_row * tile_rows_size + (i % tile_rows_size);
-                int colbg = correct_tile_col * tile_cols_size + (j % tile_cols_size);
-                output_image->data[i * output_image->cols + j] = p->bg_image->data[rowbg * p->bg_image->cols + colbg];
-              }
-        } else {
-            output_image->data[i * output_image->cols + j].r = 0;
-            output_image->data[i * output_image->cols + j].g = 0;
-            output_image->data[i * output_image->cols + j].b = 0;
-        }
+      if (tile_value == 0) {
+        output_image->data[i * output_image->cols + j].r = 0;
+        output_image->data[i * output_image->cols + j].g = 0;
+        output_image->data[i * output_image->cols + j].b = 0;
+      }
+      /* Copy bg image otherwise */
+      else {
+        int correct_tile_row = (tile_value - 1) / p->cols;
+        int correct_tile_col = (tile_value - 1) % p->cols;
+        int rowbg = correct_tile_row * tile_rows_size + (i % tile_rows_size);
+        int colbg = correct_tile_col * tile_cols_size + (j % tile_cols_size);
+        output_image->data[i * output_image->cols + j] = p->bg_image->data[rowbg * p->bg_image->cols + colbg];
+      }
+    } else {
+      output_image->data[i * output_image->cols + j].r = 0;
+      output_image->data[i * output_image->cols + j].g = 0;
+      output_image->data[i * output_image->cols + j].b = 0;
     }
+  }
 }
 
   /* Open output image for writing */
