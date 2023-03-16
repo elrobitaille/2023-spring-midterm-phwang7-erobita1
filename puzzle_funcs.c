@@ -354,13 +354,11 @@ int handle_W_command(FILE *in, Puzzle *p) {
     FILE *fp = fopen(image, "rb");
     if (fp == NULL) {
       fprintf(stderr, "Could not open image file '%s'\n", image);
-      fclose(fp);
       return 1;
     }
 
     if (handle_I_command(fp, p) != 0) {
       fprintf(stderr, "No image\n");
-      fclose(fp);
       return 1;
     }
     fclose(fp);
@@ -427,8 +425,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
   FILE *imgfile = fopen(image, "wb");
   if (imgfile == NULL) {
     fprintf(stderr, "Could not open output image file '%s'\n", image);
-    free(output_image->data);
-    free(output_image);
+    FreePPM(output_image);
     return 1;
   }
   
