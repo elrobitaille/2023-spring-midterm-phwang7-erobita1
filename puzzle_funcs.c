@@ -399,21 +399,23 @@ for (int i = 0; i < output_image->rows; i++) {
         int tile_col = j / tile_cols_size;
 
         if (tile_row < p->size && tile_col < p->size) {
-            if (p->grid[tile_row][tile_col] == 0) {
+            int tile_value = p->grid[tile_row][tile_col];
+            if (tile_value == 0) {
                 output_image->data[i * output_image->cols + j].r = 0;
                 output_image->data[i * output_image->cols + j].g = 0;
                 output_image->data[i * output_image->cols + j].b = 0;
             }
             /* Copy bg image otherwise */
             else {
-                int rowbg = (tile_row * tile_rows_size) + (i % tile_rows_size);
-                int colbg = (tile_col * tile_cols_size) + (j % tile_cols_size);
+                int correct_tile_row = (tile_value - 1) / p->cols;
+                int correct_tile_col = (tile_value - 1) % p->cols;
+                int rowbg = (correct_tile_row * tile_rows_size) + (i % tile_rows_size);
+                int colbg = (correct_tile_col * tile_cols_size) + (j % tile_cols_size);
                 output_image->data[i * output_image->cols + j] = p->bg_image->data[rowbg * p->bg_image->cols + colbg];
             }
-        } 
-          if (tile_row >= p->rows || tile_col >= p->cols) {
-            continue;
-        }
+        } else {
+             output_image->data[i * output_image->cols + j] = p->bg_image->data[i * p->bg_image->cols + j];
+          } 
     }
 }
 
