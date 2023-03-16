@@ -516,14 +516,13 @@ int handle_K_command(Puzzle *p, int output) {
 
 int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char prev_move) {
     // If the puzzle is solved, exit and print num steps. 
-    if (handle_K_command(p, 0) == 0) {
+    if (cur_steps > 0 && handle_K_command(p, 0) == 0) {
       steps[cur_steps] = '\0'; //End the array and terminate with the null terminator. 
       return cur_steps;
     }
 
     // If exceeded number of steps then there's no solution. 
     if (cur_steps >= max_steps) {
-      fprintf(stderr, "No solution found\n");
       return -1;
     }
 
