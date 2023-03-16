@@ -15,6 +15,10 @@ Puzzle *puzzle_create(int size) {
   assert(p != NULL); 
 
   p->size = size;
+  p->rows = 0;
+  p->cols = 0;
+  p->bg_image = NULL;
+
   p->grid = malloc(sizeof(int*) * size); // Allocate memory for 2D array of size x size (n x n) square
   if (p->grid == NULL) {
     free(p);
@@ -235,10 +239,9 @@ int handle_I_command(FILE *in, Puzzle *p) {
 
   FreePPM(p->bg_image);
   p->bg_image = new_image;
-
-  /* Free memory allocated by ReadPPM */
-  FreePPM(new_image);
-
+  p->rows = p->bg_image->rows / p->size;
+  p->cols = p->bg_image->cols / p->size;
+  
   return 0;
 }
 
@@ -306,6 +309,7 @@ int handle_S_command(Puzzle *p, char dir) {
         return 1;
     }
 
+    /* 
     printf("Puzzle Setup:\n");
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
@@ -313,6 +317,8 @@ int handle_S_command(Puzzle *p, char dir) {
         }
         printf("\n");
     }
+    */
+    
 
     return 0;
 }
@@ -331,7 +337,7 @@ void handle_P_command(Puzzle *p) {
 int handle_W_command(FILE *in, Puzzle *p) {
   char image[256];
   char config[256];
-
+  
   /* Get output file names */
   if (fscanf(in, " %s %s", image, config) != 2) {
     fprintf(stderr, "Invalid input\n");
@@ -342,8 +348,6 @@ int handle_W_command(FILE *in, Puzzle *p) {
     fprintf(stderr, "No puzzle\n");
     return 1;
   }
-
-  //printf("image = %s, config = %s\n", image, config);
 
   /* If background image hasn't been read, load it with I command */
   if (p->bg_image == NULL) {
@@ -362,7 +366,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
     fclose(fp);
   }
 
-  /* Check that dimensions have been read from image */
+  //* Check that dimensions have been read from image */
   if (p->bg_image->cols == 0 || p->bg_image->rows == 0) {
     fprintf(stderr, "Invalid image dimensions\n");
     return 1;
@@ -370,8 +374,14 @@ int handle_W_command(FILE *in, Puzzle *p) {
 
   /* Check bg image dimensions are evenly divisible by puzzle dimensions */
   if (p->bg_image->cols % p->cols != 0 || p->bg_image->rows % p->rows != 0) {
-    fprintf(stderr, "Invalid image dimensions\n");
-    return 1;
+   fprintf(stderr, "Invalid image dimensions\n");
+   return 1;
+  }
+
+  /* Check puzzle dimensions are greater than zero */
+  if (p->cols <= 0 || p->rows <= 0) {
+   fprintf(stderr, "Invalid puzzle dimensions\n");
+   return 1;
   }
 
   /* New image instance */
@@ -381,25 +391,31 @@ int handle_W_command(FILE *in, Puzzle *p) {
   output_image->data = (Pixel *) malloc(sizeof(Pixel) * output_image->rows * output_image->cols);
 
   /* Fill in output image */
-  for (int i = 0; i < output_image->rows; i++) {
+for (int i = 0; i < output_image->rows; i++) {
     for (int j = 0; j < output_image->cols; j++) {
-      int tile_size = output_image->cols / p->size;
-      int tile_row = i / tile_size;
-      int tile_col = j / tile_size;
-      /* Set black gap */
-      if (p->grid[tile_row][tile_col] == 0) {
-        output_image->data[i * output_image->cols + j].r = 0;
-        output_image->data[i * output_image->cols + j].g = 0;
-        output_image->data[i * output_image->cols + j].b = 0;
-      }
-      /* Copy bg image otherwise */
-      else {
-        int rowbg = (tile_row * tile_size) + (i % tile_size);
-        int colbg = (tile_col * tile_size) + (j % tile_size);
-        output_image->data[i * output_image->cols + j] = p->bg_image->data[rowbg * p->bg_image->cols + colbg];
-      }
+        int tile_rows_size = output_image->rows / p->rows;
+        int tile_cols_size = output_image->cols / p->cols;
+        int tile_row = i / tile_rows_size;
+        int tile_col = j / tile_cols_size;
+
+        if (tile_row < p->size && tile_col < p->size) {
+            if (p->grid[tile_row][tile_col] == 0) {
+                output_image->data[i * output_image->cols + j].r = 0;
+                output_image->data[i * output_image->cols + j].g = 0;
+                output_image->data[i * output_image->cols + j].b = 0;
+            }
+            /* Copy bg image otherwise */
+            else {
+                int rowbg = (tile_row * tile_rows_size) + (i % tile_rows_size);
+                int colbg = (tile_col * tile_cols_size) + (j % tile_cols_size);
+                output_image->data[i * output_image->cols + j] = p->bg_image->data[rowbg * p->bg_image->cols + colbg];
+            }
+        } 
+          if (tile_row >= p->rows || tile_col >= p->cols) {
+            continue;
+        }
     }
-  }
+}
 
   /* Open output image for writing */
   FILE *imgfile = fopen(image, "wb");
@@ -424,13 +440,14 @@ int handle_W_command(FILE *in, Puzzle *p) {
     free(output_image);
     return 1;
   }
-  // Add error Could not write puzzle data 'filename'
+
+  // Write puzzle data to the config file
   for (int i = 0; i < p->size; i++) {
     for (int j = 0; j < p->size; j++) {
       fprintf(output_config, "%d ", p->grid[i][j]);
     }
+    fprintf(output_config, "\n");
   }
-  fprintf(output_config, "\n");
 
   /* Clear memory */
   fclose(output_config);
@@ -447,6 +464,7 @@ int handle_K_command(Puzzle *p, int output) {
         fprintf(stderr, "No puzzle\n");
         return 1;
     }
+    
     // Puzzles always starts at 1, then ends at zero. So the first expected value is 1. 
     int expected = 1;
     int n = p->size * p->size - 1;  // Doesn't count the last element which should be 0, so subtract 1.
@@ -560,10 +578,10 @@ int handle_V_command(Puzzle *p) {
     }
 
     // Initialize array of steps then call solve_puzzle to recursively solve the puzzle.
-    char steps[256] = {0};
+    char steps[1024] = {0};
   
-    // Calls the solve_puzzle recursively with 256 steps and puts in result. 
-    int result = solve_puzzle(p, steps, 256, 0, '\0');
+    // Calls the solve_puzzle recursively with 1024 steps and puts in result. 
+    int result = solve_puzzle(p, steps, 1024, 0, '\0');
 
     /* If result is invalid then there is no solution. */
     if (result < 0) {
