@@ -431,6 +431,8 @@ int handle_W_command(FILE *in, Puzzle *p) {
   
   /* Check WritePPM fails to successfully write PPM data */
   if (WritePPM(imgfile, output_image) < 0) {
+    fclose(imgfile);
+    FreePPM(output_image);
     return 1;
   }
   fclose(imgfile);
@@ -439,8 +441,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
   FILE *output_config = fopen(config, "w");
   if (output_config == NULL) {
     fprintf(stderr, "Could not open output puzzle file '%s'\n", config);
-    free(output_image->data);
-    free(output_image);
+    FreePPM(output_image);
     return 1;
   }
 
@@ -455,8 +456,12 @@ int handle_W_command(FILE *in, Puzzle *p) {
     }
   }
 
+  if (fclose(output_config) != 0) {
+    fprintf(stderr, "Could not write puzzle data '%s'\n", config);
+    return 1;
+  }
+
   /* Clear memory */
-  fclose(output_config);
   FreePPM(output_image);
   return 0;
 }
