@@ -393,8 +393,6 @@ int handle_W_command(FILE *in, Puzzle *p) {
   /* Fill in output image */
   int tile_rows_size = output_image->rows / p->size;
   int tile_cols_size = output_image->cols / p->size;
-  printf("Tile rows size: %d\n", tile_rows_size);
-  printf("Tile cols size: %d\n", tile_cols_size);
 
   for (int i = 0; i < output_image->rows; i++) {
     for (int j = 0; j < output_image->cols; j++) {
@@ -411,8 +409,8 @@ int handle_W_command(FILE *in, Puzzle *p) {
       }
       /* Copy bg image otherwise */
       else {
-        int correct_tile_row = (tile_value - 1) / p->cols;
-        int correct_tile_col = (tile_value - 1) % p->cols;
+        int correct_tile_row = (tile_value - 1) / p->size;
+        int correct_tile_col = (tile_value - 1) % p->size;  
         int rowbg = correct_tile_row * tile_rows_size + (i % tile_rows_size);
         int colbg = correct_tile_col * tile_cols_size + (j % tile_cols_size);
         output_image->data[i * output_image->cols + j] = p->bg_image->data[rowbg * p->bg_image->cols + colbg];
