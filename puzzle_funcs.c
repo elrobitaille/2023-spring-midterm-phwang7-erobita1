@@ -309,17 +309,6 @@ int handle_S_command(Puzzle *p, char dir) {
         return 1;
     }
 
-    /* 
-    printf("Puzzle Setup:\n");
-    for (int i = 0; i < p->size; i++) {
-        for (int j = 0; j < p->size; j++) {
-            printf("%d ", puzzle_get_tile(p, i, j));
-        }
-        printf("\n");
-    }
-    */
-    
-
     return 0;
 }
 
@@ -526,6 +515,7 @@ int solve_puzzle(Puzzle *p, char steps[], int max_steps, int cur_steps, char pre
       return -1;
     }
 
+
     // All of the characters included, try each move in this order, then run recursively. 
     char directions[] = {'u', 'd', 'l', 'r'};
     int optimal_distance = INT_MAX; 
@@ -586,6 +576,16 @@ int handle_V_command(Puzzle *p) {
         fprintf(stderr, "No puzzle\n");
         return 1;
     }
+
+    if (!handle_S_command(p, 'u')) {
+      handle_S_command(p, 'd');
+    } else if (!handle_S_command(p, 'd')) {
+      handle_S_command(p, 'u');
+    } else if (!handle_S_command(p, 'l')) {
+      handle_S_command(p, 'r');
+    } else if (!handle_S_command(p, 'r')) {
+      handle_S_command(p, 'l');
+    } 
 
     // Initialize array of steps then call solve_puzzle to recursively solve the puzzle.
     char steps[1024] = {0};
