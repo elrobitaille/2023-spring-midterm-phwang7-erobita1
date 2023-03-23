@@ -1,0 +1,10 @@
+Team Members
+Edgar Robitaille (erobita1)
+- Implemented commands C, T, P, S, K, V, and Q. Added user manual play, function testing, and puzzle.c/h.  
+Patrick Hwang (phwang7)
+- Implemented commands I and W. Worked on valgrind debugging and error handling. 
+
+Implementation Notes:
+- One interesting thing about our project is that we used a 2D array for the image instead of a 1D array. While most groups that we talked to were using a 1D array, we thought using a 2D array would allow for more easy visualization of the image. Note that the zero tile represents the empty space while the -1 value was used to initialize the puzzle. The puzzle commands are pretty standard. puzzle_create is used to first create the new puzzle, puzzle_destroy frees the memory and gets rid of the puzzle entirely. There is puzzle_get_tile and puzzle_set_tile, the 'setters and getters' of the value of a certain tile at a certain point in the grid. Finally, another function puzzle_zero_tile was used to always know where the location of the zero or moveable tile was throughout the game. 
+- Other miscellaneous functions include opposite_direction, which was used in the manhattan distance (calculation denoted by the manhattan_distance function) implementation of the handle_V_command in order to improve the efficiency of the algorithm. The function checks for the opposite direction and was used to make sure the algorithm did not waste time checking if a move backward from the previous move is worth checking to solve the puzzle. The puzzle_copy function was also included in this implementation just as the pseudocode requested; this function simply creates a copy of the current puzzle instance.
+Command Specific Notes:
