@@ -224,8 +224,10 @@ int main(int argc, char **argv) {
             return 1; 
       }
     }
+    if (p->bg_image != NULL) {
+      FreePPM(p->bg_image);
+    }
     fclose(game_input);
   }
 
- 
 }
