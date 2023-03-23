@@ -42,11 +42,16 @@ Puzzle *puzzle_create(int size) {
 /* Get rid of the puzzle if it is invalid and free the memory. */
 void puzzle_destroy(Puzzle *p) {
     if (p != NULL) {
-      for (int i = 0; i < p->size; i++) {
-        free(p->grid[i]);
+      if (p->bg_image != NULL) {
+        FreePPM(p->bg_image);
       }
+      if (p->grid != NULL) {
+        for (int i = 0; i < p->size; i++) {
+          free(p->grid[i]);
+        }
         free(p->grid);
-        free(p);
+      }
+      free(p);
     }
 }
 
@@ -58,6 +63,7 @@ void puzzle_set_tile(Puzzle *p, int row, int col, int value) {
     }
     if (row >= p->size || col >= p->size) {
         fprintf(stderr, "Invalid tile value\n");
+        puzzle_destroy(p);
         return;
     }
      p->grid[row][col] = value;
@@ -147,11 +153,13 @@ int handle_C_command(FILE *in, Puzzle **p) {
   /* Catch puzzle size error or missing/invalid command for C. */
   if (size < 2 || size > 20) {
     fprintf(stderr, "Invalid puzzle size\n");
+    puzzle_destroy(*p);
     return 1;
   }
 
   if (size_scan != 1) {
     fprintf(stderr, "Invalid input\n");
+    puzzle_destroy(*p);
     return 1;
   }
 
@@ -159,6 +167,7 @@ int handle_C_command(FILE *in, Puzzle **p) {
   Puzzle *new_puzzle = puzzle_create(size);
   if (new_puzzle == NULL) {
     fprintf(stderr, "No puzzle\n");
+    puzzle_destroy(*p);
     return 1;
   }
 
@@ -188,11 +197,13 @@ int handle_T_command(FILE *in, Puzzle *p) {
             /* Makes sure that the tile values are correct and valid. */
             if (tile < 0 || tile >= num_tiles) {
                 fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+                puzzle_destroy(p);
                 return 1;
             }
 
             if (tile_input != 1) {
                 fprintf(stderr, "Invalid input\n");
+                puzzle_destroy(p);
                 return 1;
             }
 
@@ -205,6 +216,7 @@ int handle_T_command(FILE *in, Puzzle *p) {
     /* Checks to make sure that all the tiles were iterated through. */
     if (tile_scan != num_tiles) {
         fprintf(stderr, "Invalid input\n");
+        puzzle_destroy(p);
         return 1;
     }
 
@@ -234,6 +246,8 @@ int handle_I_command(FILE *in, Puzzle *p) {
   /* Throws error if image file cannot be opened */
   if (new_image == NULL) {
     fprintf(stderr, "Could not open image file '%s'\n", image_name);
+    FreePPM(p->bg_image);
+    FreePPM(new_image);
     return 1;
   }
 
@@ -241,7 +255,7 @@ int handle_I_command(FILE *in, Puzzle *p) {
   p->bg_image = new_image;
   p->rows = p->bg_image->rows / p->size;
   p->cols = p->bg_image->cols / p->size;
-  
+
   return 0;
 }
 
@@ -373,9 +387,20 @@ int handle_W_command(FILE *in, Puzzle *p) {
 
   /* New image instance */
   Image *output_image = (Image *) malloc(sizeof(Image));
+  if (output_image == NULL) {
+    fprintf(stderr, "No puzzle\n");
+    return 1;
+  }
+
   output_image->rows = p->bg_image->rows;
   output_image->cols = p->bg_image->cols;
+
   output_image->data = (Pixel *) malloc(sizeof(Pixel) * output_image->rows * output_image->cols);
+  if (output_image->data == NULL) {
+    fprintf(stderr, "No puzzle\n");
+    FreePPM(output_image);
+    return 1;
+  }
 
   /* Fill in output image */
   int tile_rows_size = output_image->rows / p->size;
@@ -452,6 +477,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
 
   /* Clear memory */
   FreePPM(output_image);
+
   return 0;
 }
 
@@ -577,6 +603,10 @@ int handle_V_command(Puzzle *p) {
         return 1;
     }
 
+    /* V command does not test original configuration, this if statement 
+    tricks the function into testing itself as it tries a valid direction, 
+    and if it is successful then it undoes that move, and reads the original
+    puzzle configuration and correctly recurses over to find the solution. */
     if (!handle_S_command(p, 'u')) {
       handle_S_command(p, 'd');
     } else if (!handle_S_command(p, 'd')) {
@@ -611,6 +641,7 @@ int handle_Q_command(Puzzle *p) {
   /* No puzzle, so destroy it. */
   if (p != NULL) {
     puzzle_destroy(p);
+    p = NULL;
   }
   return 0;
 }
