@@ -196,7 +196,7 @@ int handle_T_command(FILE *in, Puzzle *p) {
 
             /* Makes sure that the tile values are correct and valid. */
             if (tile < 0 || tile >= num_tiles) {
-                fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+                fprintf(stderr, "Invalid tile value\n");
                 puzzle_destroy(p);
                 return 1;
             }
@@ -327,6 +327,12 @@ int handle_S_command(Puzzle *p, char dir) {
 }
 
 void handle_P_command(Puzzle *p) {
+  /* Make sure that the puzzle is not null before printing. */
+  if (!p) {
+    fprintf(stderr, "No puzzle\n");
+    return;
+  }
+
   /* Iterate through the 2D array and print the values in a single line. */
     for (int i = 0; i < p->size; i++) {
         for (int j = 0; j < p->size; j++) {
@@ -347,6 +353,7 @@ int handle_W_command(FILE *in, Puzzle *p) {
     return 1;
   } 
 
+  /* Check that there is a puzzle */
   if (!p) {
     fprintf(stderr, "No puzzle\n");
     return 1;
