@@ -55,6 +55,52 @@ void test_puzzle_set_tile(void) {
   puzzle_destroy(p4);
 }
 
+// test puzzle_get_tile and make sure the values grabbed are in correct position
+void test_puzzle_get_tile(void) {
+  int grid[3][3] = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 0}
+  };
+  Puzzle *puzzle = puzzle_create(3);
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      puzzle_set_tile(puzzle, i, j, grid[i][j]);
+    }
+  }
+  assert(puzzle_get_tile(puzzle, 0, 0) == 1);
+  assert(puzzle_get_tile(puzzle, 0, 1) == 2);
+  assert(puzzle_get_tile(puzzle, 0, 2) == 3);
+  assert(puzzle_get_tile(puzzle, 1, 1) == 5);
+  assert(puzzle_get_tile(puzzle, 1, 0) == 4);
+  assert(puzzle_get_tile(puzzle, 1, 1) == 5);
+  assert(puzzle_get_tile(puzzle, 1, 2) == 6);
+  assert(puzzle_get_tile(puzzle, 2, 0) == 7);
+  assert(puzzle_get_tile(puzzle, 2, 1) == 8);
+  assert(puzzle_get_tile(puzzle, 2, 2) == 0);
+  puzzle_destroy(puzzle);
+}
+
+//test puzzle_zero_tile and make sure the zero is found at 1,1. 
+void test_puzzle_zero_tile(void) {
+  int grid[3][3] = {
+    {1, 2, 3},
+    {4, 0, 6},
+    {7, 8, 5}
+  };  
+  Puzzle *puzzle = puzzle_create(3);
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      puzzle_set_tile(puzzle, i, j, grid[i][j]);
+    }
+  }
+  int row = -1, col = -1;
+  assert(puzzle_zero_tile(puzzle, &row, &col) == 0);
+  assert(row == 1 && col == 1);
+
+  puzzle_destroy(puzzle);
+}
+
 void test_handle_K_command(void) {
     // Test unsolved puzzle
     int unsolved_grid[3][3] = {
@@ -88,7 +134,7 @@ void test_handle_K_command(void) {
 }
 
 void test_handle_S_command(void) {
-    // Test a valid sliding   
+    // Test a valid sliding with S command   
     int grid[3][3] = {
         {1, 2, 3},
         {4, 5, 6},
@@ -106,9 +152,12 @@ void test_handle_S_command(void) {
     puzzle_destroy(puzzle);
 }
 
+// Call the test functions and 'make test' to make sure all tests are passed. 
 int main(void) {
   test_puzzle_create();
   test_puzzle_set_tile();
+  test_puzzle_get_tile();
+  test_puzzle_zero_tile();
   test_handle_K_command();
   test_handle_S_command();
   printf("All tests passed!\n");
