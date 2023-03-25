@@ -78,7 +78,7 @@ int puzzle_get_tile(const Puzzle *p, int row, int col) {
 int puzzle_zero_tile(Puzzle *p, int *row, int *col) {
     // Checks for a null row, col, or puzzle pointer. 
     if (p == NULL || row == NULL || col == NULL) {
-      fprintf(stderr, "No puzzle");
+      fprintf(stderr, "No puzzle\n");
       return 1;
     }
 
@@ -129,20 +129,22 @@ Puzzle *puzzle_copy(Puzzle *p) {
     return copy;
 }
 
-// Manhattan distance helper function for solve_puzzle implementation. 
+/* Manhattan distance helper function for solve_puzzle implementation. 
+Note that the manhattan distance is the sum of the absolute difference of 
+row and col distances from the current & target position of the tile. */
 int manhattan_distance(Puzzle *p) {
     int distance = 0;
     for (int i = 0; i < p->size; i++) {
       for (int j = 0; j < p->size; j++) {
           int val = p->grid[i][j];
           if (val != 0) {
-              int target_row = (val - 1) / p->size;
-              int target_col = (val - 1) % p->size;
-              distance += abs(target_row - i) + abs(target_col - j);
+              int target_row = (val - 1) / p->size; // Calculate target row of current tile
+              int target_col = (val - 1) % p->size; // Calculate target col of current tile
+              distance += abs(target_row - i) + abs(target_col - j); // Add absolute difference of current row and target row 
           }
         }
     }
-    return distance;
+    return distance; //Return the distance
 }
 
 
@@ -326,11 +328,11 @@ int handle_S_command(Puzzle *p, char dir) {
     return 0;
 }
 
-void handle_P_command(Puzzle *p) {
+int handle_P_command(Puzzle *p) {
   /* Make sure that the puzzle is not null before printing. */
   if (!p) {
     fprintf(stderr, "No puzzle\n");
-    return;
+    return 1;
   }
 
   /* Iterate through the 2D array and print the values in a single line. */
@@ -340,6 +342,7 @@ void handle_P_command(Puzzle *p) {
         }
     }
     printf("\n");
+  return 0;
 }
 
 /* Write puzzle image to image and puzzle configuration to config */
@@ -513,7 +516,7 @@ int handle_K_command(Puzzle *p, int output) {
                     printf("Not solved\n");
                 }
                 return 1;
-            }
+          }
             if (i == p->size - 1 && j == p->size - 1 && puzzle_get_tile(p, i, j) != 0) {
                 if (output == 1) {
                     printf("Not solved\n");
@@ -524,7 +527,7 @@ int handle_K_command(Puzzle *p, int output) {
             if (expected > n) {
                 break;
             }
-        }
+      }
         if (expected > n) {
             break;
         }
@@ -533,6 +536,7 @@ int handle_K_command(Puzzle *p, int output) {
     if (output == 1) {
       printf("Solved\n");
     }
+    
     return 0;
 }
 
