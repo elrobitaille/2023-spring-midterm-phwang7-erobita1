@@ -6,14 +6,12 @@
 #include "ppm_io.h" // for Image data type
 
 typedef struct {
-  // ...fields go here...
   int size; // Size of the 2D image array, number rows or columns 
   int **grid; // 2D array of integers which are the puzzle tiles
   int row_index; // The row index of the tile
   int col_index; // The column index of the tile 
   int rows;
   int cols;
-  int *board;
   Image *bg_image; // Background image 
 } Puzzle;
 
@@ -32,7 +30,7 @@ int handle_C_command(FILE *in, Puzzle **p);
 int handle_T_command(FILE *in, Puzzle *p);
 int handle_I_command(FILE *in, Puzzle *p);
 int move_tile(Puzzle *p, int row, int col, char dir, int output);
-void handle_P_command(Puzzle *p);
+int handle_P_command(Puzzle *p);
 int handle_W_command(FILE *in, Puzzle *p);
 int handle_S_command(Puzzle *p, char dir);
 int handle_K_command(Puzzle *p, int output);
