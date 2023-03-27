@@ -185,11 +185,10 @@ int handle_T_command(FILE *in, Puzzle *p) {
         fprintf(stderr, "No puzzle\n");
         return 1;
     }
-    
     /* Calculate the number of tiles based on the size of the puzzle */
     int num_tiles = p->size * p->size; // Number of tiles is equal to size squared (square shape puzzle)
     int tile_scan = 0; // This is the number of tiles that have been scanned
-    int tile = -1; // This is the current tile being scanned
+    int tile; // This is the current tile being scanned
     int tile_input = 1; // Result of the fscanf input 
 
     /* Read tiles and populate the puzzle with the corresponding values. */
@@ -198,7 +197,7 @@ int handle_T_command(FILE *in, Puzzle *p) {
             tile_input = fscanf(in, " %d", &tile);
 
             /* Makes sure that the tile values are correct and valid. */
-            if (tile < 0 || tile > num_tiles) {
+            if (tile < 0 || tile >= num_tiles) {
                 fprintf(stderr, "Invalid tile value\n");
                 puzzle_destroy(p);
                 return 1;
@@ -290,9 +289,12 @@ int move_tile(Puzzle *p, int row, int col, char dir, int output) {
 
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
     if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
+        if (output) {
+          fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+        }
         return 1;
     }
-    
+
     int next_value = puzzle_get_tile(p, new_row, new_col);
     puzzle_set_tile(p, row, col, next_value);
     puzzle_set_tile(p, new_row, new_col, 0);
@@ -313,7 +315,7 @@ int handle_S_command(Puzzle *p, char dir) {
     /* Initialize the zero location in the 2D array, then use the puzzle_zero_tile function to find the index. */
     int zero_row = -1, zero_col = -1;
     if (puzzle_zero_tile(p, &zero_row, &zero_col) != 0) {
-        fprintf(stderr, "Invalid input\n");
+        fprintf(stderr, "Invalid Input\n");
         return 1;
     }
 
