@@ -146,7 +146,6 @@ int WritePPM(FILE *fp, const Image *im) {
   return num_pixels_written;
 }
 
-
 /* FreePPM
  * Free the memory allocated for an Image struct created by ReadPPM.
  */
