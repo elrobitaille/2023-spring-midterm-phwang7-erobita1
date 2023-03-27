@@ -152,7 +152,9 @@ int WritePPM(FILE *fp, const Image *im) {
  */
 void FreePPM(Image *img) {
   if (img != NULL) {
-    free(img->data);
+    if (img->data != NULL) {
+      free(img->data);
+    }
     free(img);
   }
 }

@@ -13,8 +13,7 @@
 
 #include <stdio.h> // c file type: FILE
 
-/* A struct to store a point (2D coordinate).
- */ 
+/* A struct to store a point (2D coordinate). */ 
 typedef struct _point {
   int x;
   int y;
