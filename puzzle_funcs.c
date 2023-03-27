@@ -290,7 +290,7 @@ int move_tile(Puzzle *p, int row, int col, char dir, int output) {
 
     /* Grab an error if the direction is invalid or cannot be placed in the certain spot. */
     if (new_row < 0 || new_row >= p->size || new_col < 0 || new_col >= p->size) {
-        return 1;
+        return 1; 
     }
 
     int next_value = puzzle_get_tile(p, new_row, new_col);
