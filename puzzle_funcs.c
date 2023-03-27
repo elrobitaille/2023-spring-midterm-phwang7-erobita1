@@ -313,14 +313,14 @@ int handle_S_command(Puzzle *p, char dir) {
     /* Initialize the zero location in the 2D array, then use the puzzle_zero_tile function to find the index. */
     int zero_row = -1, zero_col = -1;
     if (puzzle_zero_tile(p, &zero_row, &zero_col) != 0) {
-        fprintf(stderr, "Invalid input\n");
-        return 1;
+      fprintf(stderr, "Invalid input\n");
+      return 1;
     }
 
     /* Say puzzle cannot be moved in a certain direction if error is reached by move_tile function. */
     if (move_tile(p, zero_row, zero_col, dir, 1) != 0) {
-        fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
-        return 1;
+      fprintf(stderr, "Puzzle cannot be moved in specified direction\n");
+      return 1;
     }
 
     return 0;
